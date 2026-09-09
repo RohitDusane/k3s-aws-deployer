@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  AWS_REGION: ap-south-1
+  AWS_REGION: us-east-1
   ECR_REPOSITORY: risk-mlops-api
   # Set this repo variable (Settings > Secrets and variables > Actions > Variables)
   # to the plain IAM role ARN from step 2 above.
@@ -30,7 +30,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install -r requirements-serving.txt
 
       - name: Lint
         run: ruff check .

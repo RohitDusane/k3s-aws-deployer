@@ -29,12 +29,11 @@ venv/
 # Docker artifacts
 *.tar
 
-tests/
 index.html
 .pytest_cache/
 risk-mlops-api.tar/
 requirements-training.txt
-requirements-serving.txt
+
 models/
 data/
 reports/

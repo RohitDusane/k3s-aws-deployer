@@ -18,8 +18,6 @@ from app.metrics import (
     PREDICTION_LATENCY,
     HIGH_RISK_PREDICTIONS_TOTAL,
     FRAUD_PROBABILITY,
-    HIGH_RISK_RATE,
-    MODEL_INFO,
 )
 
 logger = logging.getLogger(__name__)
