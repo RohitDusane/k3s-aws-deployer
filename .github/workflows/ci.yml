@@ -71,6 +71,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug GitHub OIDC claims
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const token = await core.getIDToken('sts.amazonaws.com');
+            const payload = JSON.parse(
+              Buffer.from(token.split('.')[1], 'base64url').toString()
+            );
+
+            console.log('iss:', payload.iss);
+            console.log('aud:', payload.aud);
+            console.log('sub:', payload.sub);
+            console.log('repository:', payload.repository);
+            console.log('repository_owner:', payload.repository_owner);
+            console.log('repository_id:', payload.repository_id);
+            console.log('repository_owner_id:', payload.repository_owner_id);
+            console.log('ref:', payload.ref);
+            console.log('ref_type:', payload.ref_type);
+            console.log('event_name:', payload.event_name);
+
+
       - name: Configure AWS credentials (OIDC, no stored keys)
         uses: aws-actions/configure-aws-credentials@v4
         with:
