@@ -1,0 +1,15 @@
+{
+  "threshold": 0.1,
+  "tp": 175,
+  "fp": 0,
+  "tn": 3325,
+  "fn": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "false_positive_rate": 0.0,
+  "specificity": 1.0,
+  "flagged_rate": 0.05,
+  "cost": 0.0,
+  "normalized_cost": 0.0
+}

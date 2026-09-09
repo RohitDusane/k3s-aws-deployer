@@ -32,8 +32,6 @@ venv/
 .pytest_cache/
 risk-mlops-api.tar/
 requirements-training.txt
-
-models/
 data/processed/
 reports/
 
@@ -65,7 +63,6 @@ env/
 data/processed/
 
 # Models
-models/
 artifacts/
 *.pkl
 *.joblib
