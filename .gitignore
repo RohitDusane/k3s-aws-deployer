@@ -84,8 +84,10 @@ Thumbs.db
 
 # Secrets
 k8s/*secret*.yaml
+
 .env
 .env.*
 !.env.example
 
 .coverage
+k8s/kind-cluster.yaml

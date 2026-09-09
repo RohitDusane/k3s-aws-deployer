@@ -45,13 +45,22 @@ jobs:
       - name: Validate manifests
         uses: docker://ghcr.io/yannh/kubeconform:latest
         with:
-          # -schema-location adds the CRDs-catalog project so ServiceMonitor
-          # (a Prometheus Operator CRD, not a built-in K8s type) validates too.
           args: >-
             -strict -summary
             -schema-location default
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
-            k8s/*.yaml
+            k8s/configmap.yaml
+            k8s/deploy.yaml
+            k8s/monitoring-alertmanager.yaml
+            k8s/monitoring-grafana-dashboard-provider.yaml
+            k8s/monitoring-grafana-datasource.yaml
+            k8s/monitoring-grafana.yaml
+            k8s/monitoring-kube-state-metrics.yaml
+            k8s/monitoring-prometheus-config.yaml
+            k8s/monitoring-prometheus.yaml
+            k8s/namespace.yaml
+            k8s/prometheus-monitor.yaml
+            k8s/service.yaml
 
   build-scan-push:
     runs-on: ubuntu-latest
