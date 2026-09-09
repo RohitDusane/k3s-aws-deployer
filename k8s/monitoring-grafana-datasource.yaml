@@ -1,0 +1,27 @@
+# Replaces ./monitoring/grafana/provisioning/datasources/*.yaml from your
+# compose setup. If your real datasource file has a different name/UID or
+# extra settings, adjust — the one line that MUST change from your local
+# file is the url, since "prometheus:9090" (docker-compose service name)
+# needs to become "prometheus:9090" via K8s DNS instead. They happen to
+# look identical here because the K8s Service is also named "prometheus" —
+# don't assume that's always true when you rename things later.
+# This is your actual datasource config, unchanged — url: http://prometheus:9090
+# already matches the K8s Service name in monitoring-prometheus.yaml, so
+# nothing needed updating here despite the move from compose to K8s.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: risk-mlops
+data:
+  datasource.yaml: |
+    apiVersion: 1
+
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        uid: prometheus
+        url: http://prometheus:9090
+        isDefault: true
+        editable: true

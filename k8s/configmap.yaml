@@ -1,0 +1,23 @@
+# ADJUST THESE KEYS to match the actual field names in app/core/config.py.
+# Pydantic BaseSettings reads env vars matching the field name (upper-cased
+# unless you set an explicit `env=` alias) — the values below are my best
+# guess from main.py (settings.app_name, settings.app_version,
+# settings.model_path, settings.model_name, settings.api_prefix,
+# settings.log_level). Confirm/rename before applying.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: risk-mlops-config
+  namespace: risk-mlops
+  labels:
+    app.kubernetes.io/name: risk-mlops-api
+data:
+  APP_NAME: "risk-mlops-api"
+  APP_VERSION: "1.0.0"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  API_PREFIX: "/api/v1"
+  MODEL_PATH: "/app/models/fraud_pipeline.joblib"
+  # MODEL_NAME: "fraud_pipeline"
+  MODEL_NAME: "fraud-risk-model"
+  MODEL_VERSION: "1.0.0"

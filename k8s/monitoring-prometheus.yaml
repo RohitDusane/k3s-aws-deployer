@@ -1,0 +1,100 @@
+# Equivalent of:
+#   prometheus:
+#     image: prom/prometheus:latest
+#     volumes: [prometheus.yml (ro), prometheus_data]
+#     command: [--config.file=..., --storage.tsdb.path=...]
+#
+# Two differences from compose worth knowing:
+#   1. "latest" is replaced with a pinned version — check
+#      https://github.com/prometheus/prometheus/releases for the current
+#      stable tag before applying; pin it exactly rather than trusting
+#      "latest" in a manifest that's supposed to be reproducible.
+#   2. The docker volume `prometheus_data` becomes a PersistentVolumeClaim.
+#      K3s ships the "local-path" StorageClass by default, which is fine
+#      for a single-node setup like this.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-data
+  namespace: risk-mlops
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: risk-mlops
+  labels:
+    app.kubernetes.io/name: prometheus
+spec:
+  replicas: 1   # single instance — same as your compose setup, no HA here
+  strategy:
+    type: Recreate   # avoid two pods fighting over the same ReadWriteOnce volume
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus
+    spec:
+      securityContext:
+        fsGroup: 65534   # prom/prometheus runs as "nobody" (65534); needed to write the data volume
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v3.0.1   # pin to whatever is actually current when you apply this
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+          ports:
+            - name: http
+              containerPort: 9090
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "384Mi"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+              readOnly: true
+            - name: data
+              mountPath: /prometheus
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            periodSeconds: 15
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: prometheus-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: risk-mlops
+spec:
+  type: ClusterIP   # internal only — Grafana reaches it in-cluster; use port-forward for your own access
+  selector:
+    app.kubernetes.io/name: prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: 9090

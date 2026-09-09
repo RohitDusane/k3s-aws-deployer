@@ -1,0 +1,92 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Docker artifacts
+*.tar
+
+tests/
+index.html
+.pytest_cache/
+risk-mlops-api.tar/
+requirements-training.txt
+requirements-serving.txt
+models/
+data/
+reports/
+
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# AWS credentials
+.aws/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# DVC cache
+.dvc/cache/
+
+# Data
+data/raw/
+data/processed/
+
+# Models
+models/
+artifacts/
+*.pkl
+*.joblib
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+k8s/*secret*.yaml
+.env
+.env.*
+!.env.example

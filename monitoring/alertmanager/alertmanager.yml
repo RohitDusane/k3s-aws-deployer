@@ -1,0 +1,48 @@
+# TEMPLATE — not applied directly with kubectl.
+#
+# 1. Copy this file locally, e.g. to monitoring/alertmanager/alertmanager.yml
+# 2. Replace YOUR_SLACK_WEBHOOK_URL_HERE with a real Slack incoming webhook
+#    (Slack app settings > Incoming Webhooks > Add New Webhook).
+# 3. Load it as a Secret (NOT a ConfigMap — it contains a credential):
+#      kubectl create secret generic alertmanager-config \
+#        --from-file=alertmanager.yml=./monitoring/alertmanager/alertmanager.yml \
+#        -n risk-mlops
+# 4. Never commit the filled-in version to git. Keep this template (with the
+#    placeholder) in the repo instead, and .gitignore the real file.
+#
+# Routing logic: your alert rules already label everything with
+# severity: critical or severity: warning — this routes critical straight
+# to #incidents, everything else to #alerts, so you're not paged for a
+# warning-level "latency crept up a bit" at 2am.
+
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "slack-warnings"
+  group_by: ["alertname", "service"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: "slack-critical"
+      repeat_interval: 1h
+
+receivers:
+  - name: "slack-critical"
+    slack_configs:
+      - api_url: "${SLACK_WEBHOOK_URL}"
+        channel: "#incidents"
+        send_resolved: true
+        title: "{{ .CommonLabels.alertname }}"
+        text: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
+
+  - name: "slack-warnings"
+    slack_configs:
+      - api_url: "${SLACK_WEBHOOK_URL}"
+        channel: "#alerts"
+        send_resolved: true
+        title: "{{ .CommonLabels.alertname }}"
+        text: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"

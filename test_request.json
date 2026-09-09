@@ -1,0 +1,11 @@
+{
+  "transaction_id": "TX10002",
+  "user_id": "USER002",
+  "amount": 2500500.5,
+  "transaction_type": "TRANSFER",
+  "merchant_category": "grocery",
+  "country": "US",
+  "hour": 14,
+  "device_risk_score": 0.39,
+  "ip_risk_score": 0.58
+}

@@ -1,0 +1,117 @@
+# Health path assumed as /api/v1/health (per your earlier note that this
+# "depends on your actual route definition"). Update the three probe paths
+# below in one place if routes.py says otherwise.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-mlops-api
+  namespace: risk-mlops
+  labels:
+    app.kubernetes.io/name: risk-mlops-api
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: risk-mlops-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: risk-mlops-api
+      annotations:
+        # Fallback scrape path if you are NOT running the Prometheus Operator
+        # (i.e. plain `prom/prometheus` like in your docker-compose). Safe to
+        # leave in even if you do use the ServiceMonitor below.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001   # must match --uid in the Dockerfile's `useradd` line
+        fsGroup: 10001
+      containers:
+        - name: risk-mlops-api
+          image: risk-mlops-api:1.0.0
+          imagePullPolicy: IfNotPresent   # local image imported into k3s containerd
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: risk-mlops-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # set true once you confirm no runtime writes (e.g. logs) go to the image fs
+            capabilities:
+              drop: ["ALL"]
+          # Model loading in the lifespan handler can take a few seconds —
+          # startupProbe gives it room without weakening liveness/readiness.
+          startupProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60   # up to 150s to load the model
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ready
+              port: 8000
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8000
+            initialDelaySeconds: 0
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: risk-mlops-api-pdb
+  namespace: risk-mlops
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: risk-mlops-api
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: risk-mlops-api-hpa
+  namespace: risk-mlops
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: risk-mlops-api
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

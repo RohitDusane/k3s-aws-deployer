@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-mlops-api
+  namespace: risk-mlops
+  labels:
+    app.kubernetes.io/name: risk-mlops-api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: risk-mlops-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+---
+# k3s ships Traefik by default, so a plain Ingress is enough to get the API
+# reachable at http://risk-mlops.local/ once you add that host to your
+# Windows hosts file pointing at the WSL/K3s node IP. Optional, but this is
+# how you replace "docker run -p 8000:8000" in a real cluster.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: risk-mlops-api
+  namespace: risk-mlops
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - host: risk-mlops.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: risk-mlops-api
+                port:
+                  number: 8000

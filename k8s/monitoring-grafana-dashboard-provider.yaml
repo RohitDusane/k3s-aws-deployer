@@ -1,0 +1,37 @@
+# This is the *provider* config (tells Grafana "load dashboards from this
+# folder") — equivalent to your
+# ./monitoring/grafana/provisioning/dashboards volume mount.
+#
+# It does NOT contain your actual dashboard JSON files — I don't have them.
+# After applying everything, load them with:
+#
+#   kubectl create configmap grafana-dashboard-files \
+#     --from-file=./monitoring/grafana/dashboards \
+#     -n risk-mlops
+#
+# That command turns every .json file in that local folder into a key in
+# the ConfigMap, which monitoring-grafana.yaml mounts at the path this
+# provider config points to. Re-run the same command (add --dry-run=client
+# -o yaml | kubectl apply -f - to update in place) whenever you change a
+# dashboard locally.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: risk-mlops
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+
+    providers:
+      - name: "Risk MLOps Dashboards"
+        orgId: 1
+        folder: "MLOps"
+        type: file
+        disableDeletion: false
+        editable: true
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+
+        options:
+          path: /var/lib/grafana/dashboards

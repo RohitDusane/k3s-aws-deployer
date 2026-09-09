@@ -1,0 +1,96 @@
+# Mounts the "alertmanager-config" Secret (created manually from
+# monitoring/alertmanager/alertmanager.yml.template — see that file's
+# header comment) at the path Alertmanager expects its config file.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alertmanager-data
+  namespace: risk-mlops
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: risk-mlops
+  labels:
+    app.kubernetes.io/name: alertmanager
+spec:
+  replicas: 1   # single instance — fine at this scale; Alertmanager HA needs peer clustering, not just more replicas
+  strategy:
+    type: Recreate   # same ReadWriteOnce-volume reasoning as Prometheus/Grafana
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alertmanager
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: alertmanager
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.27.0   # check for a newer stable tag before applying
+          args:
+            - "--config.file=/etc/alertmanager/alertmanager.yml"
+            - "--storage.path=/alertmanager"
+          ports:
+            - name: http
+              containerPort: 9093
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager
+              readOnly: true
+            - name: data
+              mountPath: /alertmanager
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9093
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9093
+            periodSeconds: 15
+      volumes:
+        - name: config
+          secret:
+            secretName: alertmanager-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: alertmanager-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: risk-mlops
+spec:
+  type: ClusterIP   # internal only — Prometheus talks to it in-cluster; use port-forward for the Alertmanager UI yourself
+  selector:
+    app.kubernetes.io/name: alertmanager
+  ports:
+    - name: http
+      port: 9093
+      targetPort: 9093

@@ -1,0 +1,294 @@
+# This replaces ./monitoring/prometheus/prometheus.yml from your compose
+# setup. I've reconstructed the minimal scrape config implied by your
+# compose file (job scraping the api container on 8000) with the target
+# updated to the K8s Service name. If your real prometheus.yml has more
+# jobs, alerting rules, or relabeling, merge them in here — this is a
+# starting point, not a guaranteed match.
+# This is your actual prometheus.yml, with one change: the scrape target
+# "api:8000" (docker-compose service name) is now "risk-mlops-api:8000"
+# (the K8s Service name from service.yaml, same namespace).
+#
+# alerts.yml below is a PLACEHOLDER (empty rule group) — your real
+# prometheus.yml references /etc/prometheus/alerts.yml via rule_files, and
+# Prometheus refuses to start if that file is missing entirely. Share your
+# actual alert rules and I'll swap this in properly.
+# This is your actual prometheus.yml, with one change: the scrape target
+# "api:8000" (docker-compose service name) is now "risk-mlops-api:8000"
+# (the K8s Service name from service.yaml, same namespace). A second scrape
+# job for kube-state-metrics is added below — three of your alert rules
+# (RiskAPIDeploymentUnavailable, RiskAPIPodRestartingFrequently,
+# RiskAPIOOMKilled) need it; see monitoring-kube-state-metrics.yaml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: risk-mlops
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      - /etc/prometheus/alerts.yml
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+                - "alertmanager:9093"
+
+    scrape_configs:
+      - job_name: "risk-mlops-api"
+        metrics_path: "/metrics"
+        static_configs:
+          - targets:
+              - "risk-mlops-api:8000"
+
+      - job_name: "kube-state-metrics"
+        metrics_path: "/metrics"
+        static_configs:
+          - targets:
+              - "kube-state-metrics:8080"
+
+  alerts.yml: |
+    groups:
+
+      - name: risk-mlops-api
+        rules:
+
+          - alert: RiskAPIInstanceDown
+            expr: up{job="risk-mlops-api"} == 0
+            for: 2m
+            labels:
+              severity: critical
+              service: fraud-api
+            annotations:
+              summary: "Risk MLOps API instance is down"
+              description: "A Risk MLOps API instance has been unreachable for more than 2 minutes."
+
+          - alert: RiskAPITotallyDown
+            expr: sum(up{job="risk-mlops-api"}) == 0
+            for: 2m
+            labels:
+              severity: critical
+              service: fraud-api
+            annotations:
+              summary: "Risk MLOps API is completely down"
+              description: "No Risk MLOps API instances are currently reachable."
+
+          - alert: HighHTTP5xxRate
+            expr: |
+              (
+                100 *
+                sum(rate(http_requests_total{status="5xx",handler!="/metrics"}[5m]))
+                /
+                clamp_min(
+                  sum(rate(http_requests_total{handler!="/metrics"}[5m])),
+                  0.0001
+                )
+              ) > 5
+              and
+              sum(rate(http_requests_total{handler!="/metrics"}[5m])) > 0.1
+            for: 5m
+            labels:
+              severity: critical
+              service: fraud-api
+            annotations:
+              summary: "High HTTP 5xx error rate"
+              description: "HTTP 5xx error rate is above 5%."
+
+          - alert: HighAPIP95Latency
+            expr: |
+              1000 *
+              histogram_quantile(
+                0.95,
+                sum by (le) (
+                  rate(
+                    http_request_duration_seconds_bucket{
+                      handler="/api/v1/predict"
+                    }[5m]
+                  )
+                )
+              ) > 1000
+            for: 10m
+            labels:
+              severity: warning
+              service: fraud-api
+            annotations:
+              summary: "API P95 latency is high"
+              description: "Prediction API P95 latency is above 1 second."
+
+          - alert: HighModelP95Latency
+            expr: |
+              1000 *
+              histogram_quantile(
+                0.95,
+                sum by (le) (
+                  rate(
+                    risk_prediction_latency_seconds_bucket{
+                      model_name="fraud_pipeline"
+                    }[5m]
+                  )
+                )
+              ) > 1000
+            for: 10m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Model inference P95 latency is high"
+              description: "Model P95 inference latency is above 1 second."
+
+          - alert: SignificantPredictionDrift
+            expr: model_prediction_drift > 0.25
+            for: 10m
+            labels:
+              severity: critical
+              service: fraud-model
+            annotations:
+              summary: "Significant model prediction drift"
+              description: "Prediction PSI is above 0.25."
+
+          - alert: ModeratePredictionDrift
+            expr: |
+              model_prediction_drift > 0.10
+              and
+              model_prediction_drift <= 0.25
+            for: 15m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Moderate model prediction drift"
+              description: "Prediction PSI is between 0.10 and 0.25."
+
+          - alert: ModelDriftMetricMissing
+            expr: absent(model_prediction_drift)
+            for: 15m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Model drift metric is missing"
+              description: "The model_prediction_drift metric has not been exposed for 15 minutes."
+
+          - alert: SignificantDataDrift
+            expr: data_drift_score > 0.25
+            for: 10m
+            labels:
+              severity: critical
+              service: fraud-model
+            annotations:
+              summary: "Significant data drift"
+              description: "Data drift score is above 0.25."
+
+          - alert: DataDriftMetricMissing
+            expr: absent(data_drift_score)
+            for: 15m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Data drift metric is missing"
+              description: "The data_drift_score metric has not been exposed for 15 minutes."
+
+          - alert: LowModelAccuracy
+            expr: model_accuracy < 0.70
+            for: 30m
+            labels:
+              severity: critical
+              service: fraud-model
+            annotations:
+              summary: "Model accuracy is low"
+              description: "Latest evaluated model accuracy is below 70%."
+
+          - alert: LowModelF1
+            expr: model_f1_score < 0.70
+            for: 30m
+            labels:
+              severity: critical
+              service: fraud-model
+            annotations:
+              summary: "Model F1 score is low"
+              description: "Latest model F1 score is below 70%."
+
+          - alert: ModelEvaluationStale
+            expr: |
+              time() - model_evaluation_timestamp > 86400
+            for: 30m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Model evaluation is stale"
+              description: "No successful model evaluation has been recorded in the last 24 hours."
+
+          - alert: ModelAccuracyMetricMissing
+            expr: absent(model_accuracy)
+            for: 30m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Model accuracy metric is missing"
+              description: "The model_accuracy metric is no longer being reported."
+
+          - alert: ModelF1MetricMissing
+            expr: absent(model_f1_score)
+            for: 30m
+            labels:
+              severity: warning
+              service: fraud-model
+            annotations:
+              summary: "Model F1 Score metric is missing"
+              description: "The model_f1_score metric is no longer being reported."
+
+          - alert: RiskAPIDeploymentUnavailable
+            expr: |
+              kube_deployment_status_replicas_available{
+                deployment="risk-mlops-api"
+              }
+              <
+              kube_deployment_spec_replicas{
+                deployment="risk-mlops-api"
+              }
+            for: 5m
+            labels:
+              severity: critical
+              service: fraud-api
+            annotations:
+              summary: "Risk MLOps API has unavailable replicas"
+              description: "The Risk MLOps API deployment has fewer available replicas than desired."
+
+          - alert: RiskAPIPodRestartingFrequently
+            expr: |
+              increase(
+                kube_pod_container_status_restarts_total{
+                  container="risk-mlops-api"
+                }[15m]
+              ) > 3
+            for: 5m
+            labels:
+              severity: warning
+              service: fraud-api
+            annotations:
+              summary: "Risk MLOps API container restarting frequently"
+              description: "A Risk MLOps API container has restarted more than 3 times within 15 minutes."
+
+          - alert: RiskAPIOOMKilled
+            expr: |
+              increase(
+                kube_pod_container_status_restarts_total{
+                  container="risk-mlops-api",
+                  reason="OOMKilled"
+                }[15m]
+              ) > 0
+            labels:
+              severity: critical
+              service: fraud-api
+              team: RoH-Ai-platform
+              environment: production
+            annotations:
+              summary: "Risk MLOps API container was OOM killed"
+              description: "A Risk MLOps API container was terminated because it exceeded its memory limit."
