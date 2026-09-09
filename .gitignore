@@ -29,13 +29,12 @@ venv/
 # Docker artifacts
 *.tar
 
-index.html
 .pytest_cache/
 risk-mlops-api.tar/
 requirements-training.txt
 
 models/
-data/
+data/processed/
 reports/
 
 
@@ -63,7 +62,6 @@ env/
 .dvc/cache/
 
 # Data
-data/raw/
 data/processed/
 
 # Models
