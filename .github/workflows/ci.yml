@@ -104,6 +104,25 @@ jobs:
           load: true    # load into the local Docker daemon so Trivy can scan it
           push: false
 
+      - name: Check Slack webhook configuration
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "ERROR: SLACK_WEBHOOK_URL is empty or not available."
+            exit 1
+          fi
+
+          case "$SLACK_WEBHOOK_URL" in
+            https://hooks.slack.com/services/*)
+              echo "Slack webhook URL format looks correct."
+              ;;
+            *)
+              echo "ERROR: SLACK_WEBHOOK_URL does not start with https://hooks.slack.com/services/"
+              exit 1
+              ;;
+          esac
+
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@0.35.0
         with:
