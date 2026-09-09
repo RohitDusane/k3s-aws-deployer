@@ -87,3 +87,5 @@ k8s/*secret*.yaml
 .env
 .env.*
 !.env.example
+
+.coverage
