@@ -48,7 +48,7 @@ jobs:
           args: >-
             -strict -summary
             -schema-location default
-            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+            -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json
             k8s/configmap.yaml
             k8s/deploy.yaml
             k8s/monitoring-alertmanager.yaml
