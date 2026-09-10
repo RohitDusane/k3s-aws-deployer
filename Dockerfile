@@ -3,7 +3,7 @@
 # ============================================================
 # Stage 1: Build dependencies
 # ============================================================
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim-trixie AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -14,31 +14,53 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Build tools — needed only if a dependency has no prebuilt wheel for the
 # target architecture (this bites you specifically on arm64/Graviton).
 # Stays in this stage only; never copied into the runtime image.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+# RUN apt-get update \
+#     && apt-get upgrade -y \
+#     && apt-get install -y --no-install-recommends \
+#         build-essential \
+#     && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python -m venv /opt/venv
 
 COPY requirements-serving.txt .
 
-RUN pip install --no-cache-dir -r requirements-serving.txt
+# RUN pip install --no-cache-dir --upgrade pip \
+#     && pip install --no-cache-dir -r requirements-serving.txt
+
+RUN /opt/venv/bin/pip install --no-cache-dir -r requirements-serving.txt
+
+# pip is needed to build/install dependencies, but not to run the application.
+RUN rm -rf \
+    /opt/venv/bin/pip \
+    /opt/venv/bin/pip3 \
+    /opt/venv/bin/pip3.12 \
+    /opt/venv/lib/python3.12/site-packages/pip \
+    /opt/venv/lib/python3.12/site-packages/pip-*.dist-info
 
 # ============================================================
 # Stage 2: Runtime
 # ============================================================
-FROM python:3.12-slim AS runtime
+FROM python:3.12-slim-trixie AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH"
 
-WORKDIR /app
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /opt/venv /opt/venv
 
-COPY app ./app
+WORKDIR /
+
+COPY app/ /app/
 COPY models ./models
 
 # Non-root user — UID 10001 must match runAsUser in k8s/deploy.yaml exactly,
