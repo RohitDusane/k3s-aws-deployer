@@ -160,9 +160,9 @@ jobs:
           exit-code: '1'
 
       - name: Trivy full vulnerability report
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.35.0
         with:
-          image-ref: risk-mlops:${{ github.sha }}
+          image-ref: ${{ steps.image-tag.outputs.image }}
           format: json
           output: trivy-report.json
           severity: HIGH,CRITICAL
