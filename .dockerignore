@@ -56,3 +56,46 @@ tests/
 k8s/
 *.md
 .env
+
+# Cloud credentials/config
+.gcloud/
+.google/
+.config/gcloud/
+**/.gcloud/
+**/.config/gcloud/
+gcloud/
+google-cloud/
+credentials.json
+application_default_credentials.json
+
+# AWS credentials
+.aws/
+**/.aws/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Build/cache
+.pytest_cache/
+.mypy_cache/
+.cache/
+dist/
+build/
+*.egg-info/
+
+# Secrets/environment
+.env
+.env.*
+!.env.example

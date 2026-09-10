@@ -71,25 +71,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug GitHub OIDC claims
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const token = await core.getIDToken('sts.amazonaws.com');
-            const payload = JSON.parse(
-              Buffer.from(token.split('.')[1], 'base64url').toString()
-            );
+      # - name: Debug GitHub OIDC claims
+      #   uses: actions/github-script@v8
+      #   with:
+      #     script: |
+      #       const token = await core.getIDToken('sts.amazonaws.com');
+      #       const payload = JSON.parse(
+      #         Buffer.from(token.split('.')[1], 'base64url').toString()
+      #       );
 
-            console.log('iss:', payload.iss);
-            console.log('aud:', payload.aud);
-            console.log('sub:', payload.sub);
-            console.log('repository:', payload.repository);
-            console.log('repository_owner:', payload.repository_owner);
-            console.log('repository_id:', payload.repository_id);
-            console.log('repository_owner_id:', payload.repository_owner_id);
-            console.log('ref:', payload.ref);
-            console.log('ref_type:', payload.ref_type);
-            console.log('event_name:', payload.event_name);
+      #       console.log('iss:', payload.iss);
+      #       console.log('aud:', payload.aud);
+      #       console.log('sub:', payload.sub);
+      #       console.log('repository:', payload.repository);
+      #       console.log('repository_owner:', payload.repository_owner);
+      #       console.log('repository_id:', payload.repository_id);
+      #       console.log('repository_owner_id:', payload.repository_owner_id);
+      #       console.log('ref:', payload.ref);
+      #       console.log('ref_type:', payload.ref_type);
+      #       console.log('event_name:', payload.event_name);
 
 
       - name: Configure AWS credentials (OIDC, no stored keys)
@@ -105,8 +105,14 @@ jobs:
       - name: Set image tag
         id: image-tag
         run: |
-          IMAGE="${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          IMAGE="${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${SHORT_SHA}"
+
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "Full Git SHA: $GITHUB_SHA"
+          echo "Short Git SHA: $SHORT_SHA"
+          echo "Docker image: $IMAGE"
+
 
       # QEMU + buildx let an x86 GitHub-hosted runner cross-compile for the
       # arm64/Graviton EC2 instance the app actually runs on.

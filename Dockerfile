@@ -22,8 +22,7 @@ RUN python -m venv /opt/venv
 
 COPY requirements-serving.txt .
 
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements-serving.txt
+RUN pip install --no-cache-dir -r requirements-serving.txt
 
 # ============================================================
 # Stage 2: Runtime
