@@ -212,7 +212,7 @@ jobs:
         env:
           IMAGE: ${{ needs.build-scan-push.outputs.image }}
         run: |
-          set -e
+          set -euo pipefail
 
           INSTANCE_ID=$(aws ec2 describe-instances \
             --filters \
@@ -221,21 +221,69 @@ jobs:
             --query 'Reservations[0].Instances[0].InstanceId' \
             --output text)
 
+          if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" = "None" ]; then
+            echo "ERROR: No running EC2 instance found with tag Name=risk-mlops-node"
+            exit 1
+          fi
+
           echo "Deploying to instance: $INSTANCE_ID"
           echo "Image: $IMAGE"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters commands="[\"sudo k3s kubectl set image deployment/risk-mlops-api risk-mlops-api=$IMAGE -n risk-mlops\", \"sudo k3s kubectl rollout status deployment/risk-mlops-api -n risk-mlops --timeout=120s\"]" \
+            --parameters commands="[
+              \"set -e\",
+              \"echo '=== Node ==='\",
+              \"hostname\",
+              \"echo '=== K3s ==='\",
+              \"sudo k3s --version\",
+              \"echo '=== Current deployment ==='\",
+              \"sudo k3s kubectl get deployment risk-mlops-api -n risk-mlops -o wide\",
+              \"echo '=== Updating image ==='\",
+              \"sudo k3s kubectl set image deployment/risk-mlops-api risk-mlops-api=$IMAGE -n risk-mlops\",
+              \"echo '=== Waiting for rollout ==='\",
+              \"sudo k3s kubectl rollout status deployment/risk-mlops-api -n risk-mlops --timeout=120s\",
+              \"echo '=== Deployment ==='\",
+              \"sudo k3s kubectl get deployment risk-mlops-api -n risk-mlops -o wide\",
+              \"echo '=== Pods ==='\",
+              \"sudo k3s kubectl get pods -n risk-mlops -o wide\"
+            ]" \
             --query "Command.CommandId" \
             --output text)
 
-          echo "SSM Command: $COMMAND_ID"
+          echo "SSM Command ID: $COMMAND_ID"
 
-          aws ssm wait command-executed \
+          echo "Waiting for SSM command to finish..."
+
+          for i in {1..40}; do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" \
+              --query 'Status' \
+              --output text)
+
+            echo "Attempt $i/40 - SSM status: $STATUS"
+
+            case "$STATUS" in
+              Success|Failed|Cancelled|TimedOut|Cancelling)
+                break
+                ;;
+            esac
+
+            sleep 5
+          done
+
+          echo ""
+          echo "=========================================="
+          echo "SSM COMMAND RESULT"
+          echo "=========================================="
+
+          aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID"
+            --instance-id "$INSTANCE_ID" \
+            --query '{Status:Status,ResponseCode:ResponseCode,StdOut:StandardOutputContent,StdErr:StandardErrorContent}' \
+            --output json
 
           STATUS=$(aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
@@ -243,19 +291,23 @@ jobs:
             --query 'Status' \
             --output text)
 
-          echo "Deployment status: $STATUS"
-
-          aws ssm get-command-invocation \
+          RESPONSE_CODE=$(aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "$INSTANCE_ID" \
-            --query '{Status:Status,StdOut:StandardOutputContent,StdErr:StandardErrorContent}'
+            --query 'ResponseCode' \
+            --output text)
+
+          echo ""
+          echo "SSM Status: $STATUS"
+          echo "SSM Response Code: $RESPONSE_CODE"
 
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment failed!"
+            echo "ERROR: Deployment failed on EC2."
             exit 1
           fi
 
           echo "Deployment successful!"
+
 
       # - name: Roll out new image via SSM
       #   run: |
