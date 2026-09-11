@@ -61,7 +61,7 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /
 
 COPY app/ /app/
-COPY models ./models
+COPY models/ /app/models/
 
 # Non-root user — UID 10001 must match runAsUser in k8s/deploy.yaml exactly,
 # or Kubernetes' securityContext will override this and you'll get

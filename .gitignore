@@ -67,6 +67,12 @@ artifacts/
 *.pkl
 *.joblib
 
+# Serving artifacts committed intentionally
+!models/
+!models/fraud_pipeline.joblib
+!models/threshold.json
+
+
 # Logs
 *.log
 logs/
