@@ -32,8 +32,10 @@ venv/
 .pytest_cache/
 risk-mlops-api.tar/
 requirements-training.txt
+index_abt_old.html
 data/processed/
 reports/
+_readme.md
 
 
 # Python
@@ -94,3 +96,4 @@ k8s/*secret*.yaml
 
 .coverage
 k8s/kind-cluster.yaml
+

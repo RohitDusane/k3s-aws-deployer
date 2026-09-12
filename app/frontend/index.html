@@ -1,1274 +1,562 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RiskGuard | Fraud Risk Assessment</title>
 
-<link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 
-<link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
->
+</head>
+<body>
+<div class="app-shell">
 
-<link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
->
-
-<link rel="stylesheet" href="/static/style.css">
-
-</head> <body> <div class="app-shell">
 <!-- ================= SIDEBAR ================= -->
 <aside class="sidebar">
     <div class="brand">
-        <div class="brand-icon">
-            FR
-        </div>
-
+        <div class="brand-icon">FR</div>
         <div>
-            <div class="brand-title">
-                RiskGuard
-            </div>
-
-            <div class="brand-subtitle">
-                MLOps Platform
-            </div>
+            <div class="brand-title">RiskGuard</div>
+            <div class="brand-subtitle">MLOps Platform</div>
         </div>
-
     </div>
-
-    <!-- <nav class="navigation">
-
-        <a href="#" class="nav-item active">
-            <span>◈</span>
-            Risk Prediction
-        </a>
-
-        <a href="#" class="nav-item">
-            <span>▣</span>
-            Transactions
-        </a>
-
-        <a href="#" class="nav-item">
-            <span>◉</span>
-            Model Monitor
-        </a>
-
-        <a href="#" class="nav-item">
-            <span>⚙</span>
-            Settings
-        </a>
-
-    </nav> -->
 
     <nav class="navigation">
-        <a href="#risk-prediction"
-            class="nav-item active"
-            data-page="risk-prediction">
-                <span>◈</span>
-                Risk Prediction
+        <a href="#risk-prediction" class="nav-item active" data-page="risk-prediction">
+            <span>◈</span> Risk Prediction
         </a>
-
-        <a href="#transactions"
-            class="nav-item"
-            data-page="transactions">
-                <span>▣</span>
-                Transactions
+        <a href="#transactions" class="nav-item" data-page="transactions">
+            <span>▣</span> Transactions
         </a>
-
-        <a href="#model-monitor"
-            class="nav-item"
-            data-page="model-monitor">
-                <span>◉</span>
-                Model Monitor
+        <a href="#model-monitor" class="nav-item" data-page="model-monitor">
+            <span>◉</span> Model Monitor
         </a>
-
-        <a href="#settings"
-            class="nav-item"
-            data-page="settings">
-                <span>⚙</span>
-                Settings
+        <a href="#settings" class="nav-item" data-page="settings">
+            <span>⚙</span> Settings
         </a>
-
     </nav>
 
-
     <div class="sidebar-bottom">
-
         <div class="environment-card">
-
-            <div class="environment-label">
-                ENVIRONMENT
-            </div>
-
+            <div class="environment-label">ENVIRONMENT</div>
             <div class="environment-value">
-                <span class="status-dot green"></span>
-                Development
+                <span class="status-dot green"></span> Development
             </div>
-
         </div>
-
         <div class="api-mini-status">
-
             <span class="status-dot green"></span>
-
-            <span>
-                API Online
-            </span>
-
+            <span>API Online</span>
         </div>
-
     </div>
-
 </aside>
 
 
 <!-- ================= MAIN ================= -->
-
 <main class="main-content">
 
-    <!-- TOP BAR -->
-
     <header class="topbar">
-
         <div>
-
-            <div class="breadcrumb">
-                Dashboard / Risk Prediction
-            </div>
-
-            <h1>
-                Fraud Risk Assessment
-            </h1>
-
-            <p>
-                Analyze a financial transaction using the deployed
-                machine learning model.
-            </p>
-
+            <div class="breadcrumb">Dashboard / Risk Prediction</div>
+            <h1>Fraud Risk Assessment</h1>
+            <p>Analyze a financial transaction using the deployed machine learning model.</p>
         </div>
-
-
         <div class="topbar-status">
-
             <div class="live-indicator">
-
-                <span class="status-dot green"></span>
-
-                API Connected
-
+                <span class="status-dot green"></span> API Connected
             </div>
-
-
             <div class="model-badge">
-
-                <span class="model-dot"></span>
-
-                fraud_pipeline
-
-                <strong>
-                    v1.0.0
-                </strong>
-
+                <span class="model-dot"></span> fraud_pipeline <strong>v1.0.0</strong>
             </div>
-
         </div>
-
     </header>
 
 
-    <!-- ================= DASHBOARD ================= -->
-
-    <!-- <section class="dashboard-grid"> -->
-    <section
-        class="dashboard-grid page-section"
-        id="risk-prediction"
-    >
-
-
-
-        <!-- ================= FORM ================= -->
+    <!-- ================= RISK PREDICTION ================= -->
+    <section class="dashboard-grid page-section" id="risk-prediction">
 
         <div class="form-card card">
-
             <div class="card-header">
-
                 <div>
-
-                    <span class="eyebrow">
-                        TRANSACTION INPUT
-                    </span>
-
-                    <h2>
-                        Transaction Details
-                    </h2>
-
-                    <p>
-                        Enter the transaction information to
-                        calculate fraud probability.
-                    </p>
-
+                    <span class="eyebrow">TRANSACTION INPUT</span>
+                    <h2>Transaction Details</h2>
+                    <p>Enter the transaction information to calculate fraud probability.</p>
                 </div>
-
-                <div class="step-number">
-                    01
-                </div>
-
+                <div class="step-number">01</div>
             </div>
-
-
-            <!-- <form
-                action="http://127.0.0.1:8000/api/v1/predict"
-                method="POST"
-            > -->
 
             <form id="prediction-form">
 
-
-
-                <!-- TRANSACTION IDENTITY -->
-
                 <div class="section-title">
-
-                    <span class="section-icon">
-                        ID
-                    </span>
-
+                    <span class="section-icon">ID</span>
                     Transaction Identity
-
                 </div>
-
 
                 <div class="form-grid">
-
                     <div class="field">
-
-                        <label for="transaction_id">
-                            Transaction ID
-                        </label>
-
-                        <input
-                            type="text"
-                            id="transaction_id"
-                            name="transaction_id"
-                            placeholder="TX10001"
-                            value="TX10001"
-                            required
-                        >
-
+                        <label for="transaction_id">Transaction ID</label>
+                        <input type="text" id="transaction_id" name="transaction_id" placeholder="TX10001" value="TX10001" required>
                     </div>
-
-
                     <div class="field">
-
-                        <label for="user_id">
-                            User ID
-                        </label>
-
-                        <input
-                            type="text"
-                            id="user_id"
-                            name="user_id"
-                            placeholder="USER001"
-                            value="USER001"
-                            required
-                        >
-
+                        <label for="user_id">User ID</label>
+                        <input type="text" id="user_id" name="user_id" placeholder="USER001" value="USER001" required>
                     </div>
-
                 </div>
 
-
-                <!-- TRANSACTION INFORMATION -->
-
                 <div class="section-title second-section">
-
-                    <span class="section-icon">
-                        ₹
-                    </span>
-
+                    <span class="section-icon">₹</span>
                     Transaction Information
-
                 </div>
-
 
                 <div class="form-grid">
-
-
                     <div class="field">
-
-                        <label for="amount">
-                            Transaction Amount
-                        </label>
-
+                        <label for="amount">Transaction Amount</label>
                         <div class="input-with-prefix">
-
-                            <span>
-                                ₹
-                            </span>
-
-                            <input
-                                type="number"
-                                id="amount"
-                                name="amount"
-                                min="0.01"
-                                step="0.01"
-                                value="1500.50"
-                                required
-                            >
-
+                            <span>₹</span>
+                            <input type="number" id="amount" name="amount" min="0.01" step="0.01" value="1500.50" required>
                         </div>
-
                     </div>
 
-
                     <div class="field">
-
-                        <label for="hour">
-                            Transaction Hour
-                        </label>
-
-                        <input
-                            type="number"
-                            id="hour"
-                            name="hour"
-                            min="0"
-                            max="23"
-                            value="14"
-                            required
-                        >
-
-                        <small>
-                            24-hour format, 0–23
-                        </small>
-
+                        <label for="hour">Transaction Hour</label>
+                        <input type="number" id="hour" name="hour" min="0" max="23" value="14" required>
+                        <small>24-hour format, 0–23</small>
                     </div>
 
-
                     <div class="field">
-
-                        <label for="transaction_type">
-                            Transaction Type
-                        </label>
-
-                        <select
-                            id="transaction_type"
-                            name="transaction_type"
-                        >
-
-                            <option value="TRANSFER">
-                                TRANSFER
-                            </option>
-
-                            <option value="PAYMENT">
-                                PAYMENT
-                            </option>
-
-                            <option value="WITHDRAWAL">
-                                WITHDRAWAL
-                            </option>
-
-                            <option value="PURCHASE">
-                                PURCHASE
-                            </option>
-
-                            <option value="DEPOSIT">
-                                DEPOSIT
-                            </option>
-
+                        <label for="transaction_type">Transaction Type</label>
+                        <select id="transaction_type" name="transaction_type">
+                            <option value="TRANSFER">TRANSFER</option>
+                            <option value="PAYMENT">PAYMENT</option>
+                            <option value="WITHDRAWAL">WITHDRAWAL</option>
+                            <option value="PURCHASE">PURCHASE</option>
+                            <option value="DEPOSIT">DEPOSIT</option>
                         </select>
-
                     </div>
-
 
                     <div class="field">
-
-                        <label for="merchant_category">
-                            Merchant Category
-                        </label>
-
-                        <select
-                            id="merchant_category"
-                            name="merchant_category"
-                        >
-
-                            <option value="electronics">
-                                Electronics
-                            </option>
-
-                            <option value="grocery">
-                                Grocery
-                            </option>
-
-                            <option value="travel">
-                                Travel
-                            </option>
-
-                            <option value="fashion">
-                                Fashion
-                            </option>
-
-                            <option value="restaurant">
-                                Restaurant
-                            </option>
-
-                            <option value="entertainment">
-                                Entertainment
-                            </option>
-
+                        <label for="merchant_category">Merchant Category</label>
+                        <select id="merchant_category" name="merchant_category">
+                            <option value="electronics">Electronics</option>
+                            <option value="grocery">Grocery</option>
+                            <option value="travel">Travel</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="entertainment">Entertainment</option>
                         </select>
-
                     </div>
-
 
                     <div class="field">
-
-                        <label for="country">
-                            Country
-                        </label>
-
-                        <select
-                            id="country"
-                            name="country"
-                        >
-
-                            <option value="US">
-                                United States
-                            </option>
-
-                            <option value="IN">
-                                India
-                            </option>
-
-                            <option value="UK">
-                                United Kingdom
-                            </option>
-
-                            <option value="CA">
-                                Canada
-                            </option>
-
-                            <option value="AU">
-                                Australia
-                            </option>
-
-                            <option value="DE">
-                                Germany
-                            </option>
-
+                        <label for="country">Country</label>
+                        <select id="country" name="country">
+                            <option value="US">United States</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
                         </select>
-
                     </div>
-
                 </div>
-
-
-                <!-- RISK SIGNALS -->
 
                 <div class="section-title second-section">
-
-                    <span class="section-icon">
-                        ⌁
-                    </span>
-
+                    <span class="section-icon">⌁</span>
                     Risk Signals
-
                 </div>
-
 
                 <div class="risk-input-grid">
-
-
-                    <!-- DEVICE RISK -->
-
                     <div class="risk-input-card">
-
                         <div class="risk-input-heading">
-
-                            <span>
-                                Device Risk
-                            </span>
-
-                            <strong>
-                                0.25
-                            </strong>
-
+                            <span>Device Risk</span>
+                            <strong>0.25</strong>
                         </div>
-
-                        <input
-                            class="range-input"
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value="0.25"
-                        >
-
-                        <div class="range-labels">
-
-                            <span>
-                                Low
-                            </span>
-
-                            <span>
-                                High
-                            </span>
-
-                        </div>
-
+                        <input class="range-input" type="range" min="0" max="1" step="0.01" value="0.25">
+                        <div class="range-labels"><span>Low</span><span>High</span></div>
                     </div>
 
-
-                    <!-- IP RISK -->
-
                     <div class="risk-input-card">
-
                         <div class="risk-input-heading">
-
-                            <span>
-                                IP Risk
-                            </span>
-
-                            <strong>
-                                0.18
-                            </strong>
-
+                            <span>IP Risk</span>
+                            <strong>0.18</strong>
                         </div>
-
-                        <input
-                            class="range-input"
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value="0.18"
-                        >
-
-                        <div class="range-labels">
-
-                            <span>
-                                Low
-                            </span>
-
-                            <span>
-                                High
-                            </span>
-
-                        </div>
-
+                        <input class="range-input" type="range" min="0" max="1" step="0.01" value="0.18">
+                        <div class="range-labels"><span>Low</span><span>High</span></div>
                     </div>
-
                 </div>
-
-
-                <!-- ACTION BUTTONS -->
 
                 <div class="form-actions">
-
-                    <button
-                        type="reset"
-                        class="secondary-button"
-                    >
-                        Reset
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="primary-button"
-                    >
-                        Analyze Transaction
-                        <span>→</span>
-                    </button>
-
+                    <button type="reset" class="secondary-button">Reset</button>
+                    <button type="submit" class="primary-button">Analyze Transaction <span>→</span></button>
                 </div>
-
             </form>
-
         </div>
 
-
-        <!-- ================= RIGHT COLUMN ================= -->
 
         <div class="right-column">
 
-
-            <!-- RESULT CARD -->
-
             <div class="result-card card">
-
                 <div class="card-header result-header">
-
                     <div>
-
-                        <span class="eyebrow">
-                            MODEL OUTPUT
-                        </span>
-
-                        <h2>
-                            Risk Assessment
-                        </h2>
-
+                        <span class="eyebrow">MODEL OUTPUT</span>
+                        <h2>Risk Assessment</h2>
                     </div>
-
                     <div class="model-status">
-
-                        <span class="status-dot green"></span>
-
-                        Model Ready
-
+                        <span class="status-dot green"></span> Model Ready
                     </div>
-
                 </div>
 
-
-                <!-- RESULT -->
-
                 <div class="result-content">
-
-
                     <div class="risk-status safe">
-
-                        <div class="risk-status-icon">
-                            ✓
-                        </div>
-
+                        <div class="risk-status-icon">✓</div>
                         <div>
-
-                            <span>
-                                TRANSACTION STATUS
-                            </span>
-
-                            <h3>
-                                Low Fraud Risk
-                            </h3>
-
+                            <span>TRANSACTION STATUS</span>
+                            <h3>Low Fraud Risk</h3>
                         </div>
-
                     </div>
-
-
-                    <!-- PROBABILITY -->
 
                     <div class="probability-section">
-
                         <div class="probability-heading">
-
-                            <span>
-                                Fraud Probability
-                            </span>
-
-                            <strong>
-                                18.8%
-                            </strong>
-
+                            <span>Fraud Probability</span>
+                            <strong>18.8%</strong>
                         </div>
-
-
                         <div class="probability-bar">
-
-                            <div
-                                class="probability-fill"
-                                style="width: 18.8%"
-                            ></div>
-
+                            <div class="probability-fill" style="width: 18.8%"></div>
                         </div>
-
-
                         <div class="probability-scale">
-
-                            <span>0%</span>
-                            <span>25%</span>
-                            <span>50%</span>
-                            <span>75%</span>
-                            <span>100%</span>
-
+                            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
                         </div>
-
                     </div>
-
-
-                    <!-- RISK LEVEL -->
 
                     <div class="risk-level">
-
-                        <span>
-                            Risk Level
-                        </span>
-
-                        <strong>
-                            Low Risk
-                        </strong>
-
+                        <span>Risk Level</span>
+                        <strong>Low Risk</strong>
                     </div>
-
 
                     <div class="result-divider"></div>
 
-
-                    <!-- RESULT DETAILS -->
-
                     <div class="result-details">
-
-                        <div>
-
-                            <span>
-                                Prediction
-                            </span>
-
-                            <strong>
-                                Class 0
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Model
-                            </span>
-
-                            <strong>
-                                fraud_pipeline
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Version
-                            </span>
-
-                            <strong>
-                                1.0.0
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Transaction
-                            </span>
-
-                            <strong>
-                                TX10001
-                            </strong>
-
-                        </div>
-
+                        <div><span>Prediction</span><strong>Class 0</strong></div>
+                        <div><span>Model</span><strong>fraud_pipeline</strong></div>
+                        <div><span>Version</span><strong>1.0.0</strong></div>
+                        <div><span>Transaction</span><strong>TX10001</strong></div>
                     </div>
-
                 </div>
-
             </div>
-
-
-            <!-- SYSTEM HEALTH -->
 
             <div class="system-card card">
-
                 <div class="system-card-header">
-
                     <div>
-
-                        <span class="eyebrow">
-                            SYSTEM STATUS
-                        </span>
-
-                        <h2>
-                            Service Health
-                        </h2>
-
+                        <span class="eyebrow">SYSTEM STATUS</span>
+                        <h2>Service Health</h2>
                     </div>
-
-                    <button
-                        class="refresh-button"
-                        type="button"
-                    >
-                        ↻
-                    </button>
-
+                    <button class="refresh-button" type="button">↻</button>
                 </div>
-
 
                 <div class="health-list">
-
-
                     <div class="health-row">
-
-                        <div>
-
-                            <span class="status-dot green"></span>
-
-                            API Service
-
-                        </div>
-
-                        <strong class="online">
-                            Operational
-                        </strong>
-
+                        <div><span class="status-dot green"></span> API Service</div>
+                        <strong class="online">Operational</strong>
                     </div>
-
-
                     <div class="health-row">
-
-                        <div>
-
-                            <span class="status-dot green"></span>
-
-                            ML Model
-
-                        </div>
-
-                        <strong class="online">
-                            Loaded
-                        </strong>
-
+                        <div><span class="status-dot green"></span> ML Model</div>
+                        <strong class="online">Loaded</strong>
                     </div>
-
-
                     <div class="health-row">
-
-                        <div>
-
-                            <span class="status-dot green"></span>
-
-                            Endpoint
-
-                        </div>
-
-                        <strong class="online">
-                            POST /predict
-                        </strong>
-
+                        <div><span class="status-dot green"></span> Endpoint</div>
+                        <strong class="online">POST /predict</strong>
                     </div>
-
-
                 </div>
-
             </div>
-
-
-            <!-- INFORMATION -->
 
             <div class="info-card">
-
-                <div class="info-icon">
-                    i
-                </div>
-
+                <div class="info-icon">i</div>
                 <div>
-
-                    <strong>
-                        Production model
-                    </strong>
-
-                    <p>
-                        Predictions are generated by the deployed
-                        fraud_pipeline Random Forest model using
-                        the configured preprocessing pipeline.
-                    </p>
-
+                    <strong>Production model</strong>
+                    <p>Predictions are generated by the deployed fraud_pipeline Random Forest model using the configured preprocessing pipeline.</p>
                 </div>
-
             </div>
-
         </div>
-
     </section>
 
-    <!-- ================= TRANSACTIONS ================= -->
 
-    <section
-        class="page-section"
-        id="transactions"
-        style="display: none;"
-    >
+    <!-- ================= TRANSACTIONS ================= -->
+    <section class="page-section" id="transactions" style="display: none;">
 
         <div class="page-header">
             <div>
                 <span class="eyebrow">TRANSACTION HISTORY</span>
-
                 <h1>Transactions</h1>
+                <p>Every prediction you run is saved here, in this browser, so you can review and export it later.</p>
+            </div>
+        </div>
 
-                <p>
-                    View and analyze previously processed transactions.
-                </p>
+        <div class="stat-strip">
+            <div class="stat-card">
+                <span class="eyebrow">TOTAL PREDICTIONS</span>
+                <strong id="stat-total">0</strong>
+            </div>
+            <div class="stat-card">
+                <span class="eyebrow">FLAGGED AS FRAUD</span>
+                <strong id="stat-fraud" class="danger-text">0</strong>
+            </div>
+            <div class="stat-card">
+                <span class="eyebrow">AVG. TRANSACTION</span>
+                <strong id="stat-avg-amount">—</strong>
+            </div>
+            <div class="stat-card">
+                <span class="eyebrow">AVG. FRAUD PROBABILITY</span>
+                <strong id="stat-avg-risk">—</strong>
             </div>
         </div>
 
         <div class="card">
-
             <div class="card-header">
-
                 <div>
-                    <span class="eyebrow">
-                        TRANSACTION LOG
-                    </span>
+                    <span class="eyebrow">TRANSACTION LOG</span>
+                    <h2>Recent Transactions</h2>
+                </div>
+            </div>
 
-                    <h2>
-                        Recent Transactions
-                    </h2>
+            <div class="table-toolbar">
+                <div class="search-field">
+                    <span class="search-icon">⌕</span>
+                    <input type="text" id="transaction-search" placeholder="Search by transaction or user ID">
                 </div>
 
+                <select id="transaction-risk-filter" class="filter-select">
+                    <option value="all">All risk levels</option>
+                    <option value="safe">Low risk</option>
+                    <option value="moderate">Moderate risk</option>
+                    <option value="fraud">High risk</option>
+                </select>
+
+                <div class="toolbar-actions">
+                    <button type="button" class="toolbar-button" id="download-csv">
+                        <span>⭳</span> Download CSV
+                    </button>
+                    <button type="button" class="toolbar-button danger" id="clear-history">
+                        <span>⌫</span> Clear history
+                    </button>
+                </div>
             </div>
 
             <div class="transaction-table-wrapper">
-
                 <table class="transaction-table">
-
                     <thead>
                         <tr>
                             <th>Transaction ID</th>
                             <th>User ID</th>
-                            <th>Amount</th>
+                            <th class="sortable" data-sort-key="amount">Amount</th>
                             <th>Type</th>
-                            <th>Risk</th>
+                            <th class="sortable" data-sort-key="probability">Risk</th>
                             <th>Status</th>
+                            <th class="sortable" data-sort-key="timestamp">Time</th>
                         </tr>
                     </thead>
-
-                    <tbody id="transactions-body">
-
-                        <tr>
-                            <td>TX10001</td>
-                            <td>USER001</td>
-                            <td>₹1,500.50</td>
-                            <td>TRANSFER</td>
-                            <td>18.8%</td>
-                            <td>
-                                <span class="table-status safe">
-                                    Low Risk
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>TX10002</td>
-                            <td>USER002</td>
-                            <td>₹8,200.00</td>
-                            <td>PURCHASE</td>
-                            <td>72.4%</td>
-                            <td>
-                                <span class="table-status fraud">
-                                    High Risk
-                                </span>
-                            </td>
-                        </tr>
-
-                    </tbody>
-
+                    <tbody id="transactions-body"></tbody>
                 </table>
-
             </div>
 
-        </div>
+            <div class="empty-state" id="transactions-empty-state" style="display:none;">
+                <div class="empty-state-icon">▣</div>
+                <h3>No transactions yet</h3>
+                <p>Run a prediction from the Risk Prediction page — it'll show up here automatically.</p>
+            </div>
 
+            <div class="pagination" id="transactions-pagination"></div>
+        </div>
     </section>
 
-    <!-- ================= MODEL MONITOR ================= -->
 
-    <section
-        class="page-section"
-        id="model-monitor"
-        style="display: none;"
-    >
+    <!-- ================= MODEL MONITOR ================= -->
+    <section class="page-section" id="model-monitor" style="display: none;">
 
         <div class="page-header">
-
             <div>
-
-                <span class="eyebrow">
-                    MODEL MONITORING
-                </span>
-
-                <h1>
-                    Model Monitor
-                </h1>
-
-                <p>
-                    Monitor the performance and health of the deployed
-                    fraud detection model.
-                </p>
-
+                <span class="eyebrow">MODEL MONITORING</span>
+                <h1>Model Monitor</h1>
+                <p>Monitor the performance and health of the deployed fraud detection model.</p>
             </div>
-
             <div class="model-status">
-
-                <span class="status-dot green"></span>
-
-                Model Ready
-
+                <span class="status-dot green"></span> Model Ready
             </div>
-
         </div>
-
 
         <div class="monitor-grid">
-
             <div class="card monitor-card">
-
-                <span class="eyebrow">
-                    MODEL
-                </span>
-
-                <h2>
-                    fraud_pipeline
-                </h2>
-
-                <strong>
-                    v1.0.0
-                </strong>
-
+                <span class="eyebrow">MODEL</span>
+                <h2>fraud_pipeline</h2>
+                <strong>v1.0.0</strong>
             </div>
-
-
             <div class="card monitor-card">
-
-                <span class="eyebrow">
-                    MODEL TYPE
-                </span>
-
-                <h2>
-                    Random Forest
-                </h2>
-
-                <p>
-                    Classification
-                </p>
-
+                <span class="eyebrow">MODEL TYPE</span>
+                <h2>Random Forest</h2>
+                <p>Classification</p>
             </div>
-
-
             <div class="card monitor-card">
-
-                <span class="eyebrow">
-                    STATUS
-                </span>
-
-                <h2 class="online">
-                    Operational
-                </h2>
-
-                <p>
-                    Model loaded successfully
-                </p>
-
+                <span class="eyebrow">STATUS</span>
+                <h2 class="online">Operational</h2>
+                <p>Model loaded successfully</p>
             </div>
-
         </div>
 
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <span class="eyebrow">LIVE SERVING ACTIVITY</span>
+                    <h2>This Session's Traffic</h2>
+                    <p>Computed from predictions run in this browser — not a substitute for offline evaluation below.</p>
+                </div>
+            </div>
+
+            <div class="live-stats-grid">
+                <div class="live-stat">
+                    <span>Predictions served</span>
+                    <strong id="live-total-predictions">0</strong>
+                </div>
+                <div class="live-stat">
+                    <span>Fraud rate</span>
+                    <strong id="live-fraud-rate">—</strong>
+                </div>
+                <div class="live-stat">
+                    <span>Avg. fraud probability</span>
+                    <strong id="live-avg-probability">—</strong>
+                </div>
+                <div class="live-stat">
+                    <span>Last prediction</span>
+                    <strong id="live-last-prediction">No predictions yet</strong>
+                </div>
+            </div>
+
+            <div class="sparkline-wrapper">
+                <span class="sparkline-label">Recent fraud probability</span>
+                <div class="sparkline" id="probability-sparkline"></div>
+            </div>
+        </div>
 
         <div class="card">
-
             <div class="card-header">
-
                 <div>
-
-                    <span class="eyebrow">
-                        PERFORMANCE
-                    </span>
-
-                    <h2>
-                        Model Metrics
-                    </h2>
-
+                    <span class="eyebrow">OFFLINE EVALUATION</span>
+                    <h2>Model Metrics</h2>
+                    <p>From the last scheduled evaluation run against labeled data — not live traffic.</p>
                 </div>
-
             </div>
 
             <div class="metrics-grid">
-
-                <div>
-                    <span>Accuracy</span>
-                    <strong>94.2%</strong>
-                </div>
-
-                <div>
-                    <span>Precision</span>
-                    <strong>91.8%</strong>
-                </div>
-
-                <div>
-                    <span>Recall</span>
-                    <strong>89.6%</strong>
-                </div>
-
-                <div>
-                    <span>F1 Score</span>
-                    <strong>90.7%</strong>
-                </div>
-
+                <div><span>Accuracy</span><strong>94.2%</strong></div>
+                <div><span>Precision</span><strong>91.8%</strong></div>
+                <div><span>Recall</span><strong>89.6%</strong></div>
+                <div><span>F1 Score</span><strong>90.7%</strong></div>
             </div>
-
         </div>
-
     </section>
+
 
     <!-- ================= SETTINGS ================= -->
-
-    <section
-        class="page-section"
-        id="settings"
-        style="display: none;"
-    >
+    <section class="page-section" id="settings" style="display: none;">
 
         <div class="page-header">
-
             <div>
-
-                <span class="eyebrow">
-                    CONFIGURATION
-                </span>
-
-                <h1>
-                    Settings
-                </h1>
-
-                <p>
-                    Configure RiskGuard application settings.
-                </p>
-
+                <span class="eyebrow">CONFIGURATION</span>
+                <h1>Settings</h1>
+                <p>Configure RiskGuard application settings.</p>
             </div>
-
         </div>
-
 
         <div class="card settings-card">
-
             <div class="card-header">
-
                 <div>
-
-                    <span class="eyebrow">
-                        API CONFIGURATION
-                    </span>
-
-                    <h2>
-                        Backend Connection
-                    </h2>
-
+                    <span class="eyebrow">API CONFIGURATION</span>
+                    <h2>Backend Connection</h2>
                 </div>
-
             </div>
-
 
             <div class="settings-form">
-
                 <div class="field">
-
-                    <label>
-                        API Base URL
-                    </label>
-
-                    <input
-                        type="text"
-                        id="api-url-setting"
-                        value="http://127.0.0.1:8000/api/v1"
-                    >
-
+                    <label>API Base URL</label>
+                    <input type="text" id="api-url-setting" value="http://127.0.0.1:8000/api/v1">
                 </div>
 
-
                 <div class="field">
-
-                    <label>
-                        Environment
-                    </label>
-
+                    <label>Environment</label>
                     <select id="environment-setting">
-
-                        <option value="development">
-                            Development
-                        </option>
-
-                        <option value="production">
-                            Production
-                        </option>
-
+                        <option value="development">Development</option>
+                        <option value="production">Production</option>
                     </select>
-
                 </div>
-
 
                 <div class="field">
-
-                    <label>
-                        Model
-                    </label>
-
-                    <input
-                        type="text"
-                        value="fraud_pipeline"
-                        readonly
-                    >
-
+                    <label>Model</label>
+                    <input type="text" value="fraud_pipeline" readonly>
                 </div>
-
 
                 <div class="field">
-
-                    <label>
-                        Model Version
-                    </label>
-
-                    <input
-                        type="text"
-                        value="1.0.0"
-                        readonly
-                    >
-
+                    <label>Model Version</label>
+                    <input type="text" value="1.0.0" readonly>
                 </div>
-
             </div>
-
 
             <div class="form-actions">
-
-                <button
-                    type="button"
-                    class="primary-button"
-                    id="save-settings"
-                >
-                    Save Settings
-                </button>
-
+                <button type="button" class="secondary-button" id="test-connection">Test Connection</button>
+                <button type="button" class="primary-button" id="save-settings">Save Settings</button>
             </div>
-
         </div>
 
+        <div class="card settings-card">
+            <div class="card-header">
+                <div>
+                    <span class="eyebrow">LOCAL DATA</span>
+                    <h2>Stored Transaction History</h2>
+                </div>
+            </div>
+
+            <div class="storage-info-row">
+                <div>
+                    <span>Transactions stored</span>
+                    <strong id="settings-history-count">0</strong>
+                </div>
+                <div>
+                    <span>Storage used</span>
+                    <strong id="settings-storage-usage">0 KB</strong>
+                </div>
+            </div>
+
+            <p class="settings-note">
+                Transaction history is stored in this browser only — it won't sync to another device,
+                and clearing browser data will remove it. Download a CSV from the Transactions page
+                before clearing if you want to keep a copy.
+            </p>
+        </div>
+
+        <div class="card settings-card danger-zone">
+            <div class="card-header">
+                <div>
+                    <span class="eyebrow">DANGER ZONE</span>
+                    <h2>Clear Transaction History</h2>
+                    <p>Permanently deletes every stored transaction from this browser.</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="toolbar-button danger" id="clear-history-settings">
+                    <span>⌫</span> Clear all history
+                </button>
+            </div>
+        </div>
     </section>
 
 
-
-    <!-- FOOTER -->
-
     <footer class="footer">
-
-        <span>
-            RiskGuard MLOps
-        </span>
-
-        <span>
-            Fintech Risk Scoring API v1.0.0
-        </span>
-
-        <span>
-            Local Development
-        </span>
-
+        <span>RiskGuard MLOps</span>
+        <span>Fintech Risk Scoring API v1.0.0</span>
+        <span>Local Development</span>
     </footer>
-
 </main>
+</div>
+<script src="script.js"></script>
 
-</div> 
-<script src="/static/script.js"></script>
-
-</body> </html>
+</body>
+</html>

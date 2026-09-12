@@ -19,6 +19,11 @@ from pathlib import Path
 APP_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = APP_DIR / "frontend"
 
+print("APP_DIR =", APP_DIR)
+print("FRONTEND_DIR =", FRONTEND_DIR)
+print("CSS EXISTS =", (FRONTEND_DIR / "style.css").exists())
+
+
 configure_logging(settings.log_level)
 
 logger = logging.getLogger(__name__)
@@ -107,10 +112,16 @@ app.include_router(
 # =====================================================
 # FRONTEND STATIC FILES
 # =====================================================
+# app.mount(
+#     "/static",
+#     StaticFiles(directory=FRONTEND_DIR),
+#     name="static",
+# )
+
 app.mount(
-    "/static",
-    StaticFiles(directory=FRONTEND_DIR),
-    name="static",
+    "/",
+    StaticFiles(directory=FRONTEND_DIR, html=True),
+    name="frontend",
 )
 
 # =====================================================
@@ -118,6 +129,4 @@ app.mount(
 # =====================================================
 @app.get("/", include_in_schema=False)
 def frontend():
-    return FileResponse(
-        FRONTEND_DIR / "index.html"
-    )
+    return FileResponse(FRONTEND_DIR / "index.html")

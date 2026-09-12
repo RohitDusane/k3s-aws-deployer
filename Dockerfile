@@ -41,7 +41,8 @@ FROM python:3.12-slim-trixie AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/venv \
-    PATH="/opt/venv/bin:$PATH"
+    PATH="/opt/venv/bin:$PATH" \
+    PYTHONPATH="/app"
 
 RUN apt-get update \
     && apt-get upgrade -y \
@@ -51,7 +52,7 @@ COPY --from=builder /opt/venv /opt/venv
 
 WORKDIR /app
 
-COPY app/ /app/
+COPY app/ /app/app/
 COPY models/ /app/models/
 
 
@@ -71,4 +72,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
   CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
