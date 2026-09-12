@@ -131,6 +131,21 @@ jobs:
           load: true    # load into the local Docker daemon so Trivy can scan it
           push: false
 
+      - name: Verify application package
+        run: |
+          docker run --rm \
+            --entrypoint python \
+            "${{ steps.image-tag.outputs.image }}" \
+            -c "import app
+          import app.main
+          import app.api.routes
+          import app.core.config
+          import app.services.model_service
+          print('Application imports OK')
+          print('app:', app.__file__)
+          "
+
+
       - name: Check Slack webhook configuration
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -222,39 +237,107 @@ jobs:
             --output text)
 
           if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" = "None" ]; then
-            echo "ERROR: No running EC2 instance found with tag Name=risk-mlops-node"
+            echo "ERROR: No running EC2 instance found"
             exit 1
           fi
 
-          echo "Deploying to instance: $INSTANCE_ID"
+          echo "=========================================="
+          echo "DEPLOYMENT"
+          echo "=========================================="
+          echo "Instance: $INSTANCE_ID"
+          echo "Image:    $IMAGE"
+          echo ""
+
+          COMMANDS=$(cat <<EOF
+          set -euo pipefail
+
+          echo "=== Node ==="
+          hostname
+
+          echo "=== K3s ==="
+          sudo k3s --version
+
+          echo "=== Current deployment ==="
+          sudo k3s kubectl get deployment risk-mlops-api \
+            -n risk-mlops \
+            -o wide
+
+          echo "=== Target image ==="
+          echo "$IMAGE"
+
+          echo "=== Updating image ==="
+          sudo k3s kubectl set image \
+            deployment/risk-mlops-api \
+            risk-mlops-api=$IMAGE \
+            -n risk-mlops
+
+          echo "=== Waiting for rollout ==="
+          sudo k3s kubectl rollout status \
+            deployment/risk-mlops-api \
+            -n risk-mlops \
+            --timeout=180s
+
+          echo "=== Verify deployed image ==="
+
+          DEPLOYED_IMAGE=\$(sudo k3s kubectl get deployment risk-mlops-api \
+            -n risk-mlops \
+            -o jsonpath='{.spec.template.spec.containers[?(@.name=="risk-mlops-api")].image}')
+
+          echo "Expected: $IMAGE"
+          echo "Deployed: \$DEPLOYED_IMAGE"
+
+          if [ "\$DEPLOYED_IMAGE" != "$IMAGE" ]; then
+            echo "ERROR: Deployment image does not match expected image"
+            exit 1
+          fi
+
+          echo "=== Verify replicas ==="
+
+          READY_REPLICAS=\$(sudo k3s kubectl get deployment risk-mlops-api \
+            -n risk-mlops \
+            -o jsonpath='{.status.readyReplicas}')
+
+          DESIRED_REPLICAS=\$(sudo k3s kubectl get deployment risk-mlops-api \
+            -n risk-mlops \
+            -o jsonpath='{.spec.replicas}')
+
+          echo "Ready replicas: \$READY_REPLICAS"
+          echo "Desired replicas: \$DESIRED_REPLICAS"
+
+          if [ "\$READY_REPLICAS" != "\$DESIRED_REPLICAS" ]; then
+            echo "ERROR: Not all replicas are ready"
+            exit 1
+          fi
+
+          echo "=== Pods ==="
+
+          sudo k3s kubectl get pods \
+            -n risk-mlops \
+            -l app.kubernetes.io/name=risk-mlops-api \
+            -o wide
+
+          echo "=== Deployment ==="
+
+          sudo k3s kubectl get deployment \
+            risk-mlops-api \
+            -n risk-mlops \
+            -o wide
+
+          echo "=== Deployment successful ==="
           echo "Image: $IMAGE"
+          EOF
+          )
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters commands="[
-              \"set -e\",
-              \"echo '=== Node ==='\",
-              \"hostname\",
-              \"echo '=== K3s ==='\",
-              \"sudo k3s --version\",
-              \"echo '=== Current deployment ==='\",
-              \"sudo k3s kubectl get deployment risk-mlops-api -n risk-mlops -o wide\",
-              \"echo '=== Updating image ==='\",
-              \"sudo k3s kubectl set image deployment/risk-mlops-api risk-mlops-api=$IMAGE -n risk-mlops\",
-              \"echo '=== Waiting for rollout ==='\",
-              \"sudo k3s kubectl rollout status deployment/risk-mlops-api -n risk-mlops --timeout=120s\",
-              \"echo '=== Deployment ==='\",
-              \"sudo k3s kubectl get deployment risk-mlops-api -n risk-mlops -o wide\",
-              \"echo '=== Pods ==='\",
-              \"sudo k3s kubectl get pods -n risk-mlops -o wide\"
-            ]" \
+            --parameters "commands=$(printf '%s\n' "$COMMANDS" | jq -R -s -c 'split("\n") | map(select(length > 0))')" \
             --query "Command.CommandId" \
             --output text)
 
           echo "SSM Command ID: $COMMAND_ID"
 
-          echo "Waiting for SSM command to finish..."
+          echo "Waiting for SSM command..."
 
           for i in {1..40}; do
             STATUS=$(aws ssm get-command-invocation \
@@ -263,7 +346,7 @@ jobs:
               --query 'Status' \
               --output text)
 
-            echo "Attempt $i/40 - SSM status: $STATUS"
+            echo "Attempt $i/40 - Status: $STATUS"
 
             case "$STATUS" in
               Success|Failed|Cancelled|TimedOut|Cancelling)
@@ -276,7 +359,7 @@ jobs:
 
           echo ""
           echo "=========================================="
-          echo "SSM COMMAND RESULT"
+          echo "SSM RESULT"
           echo "=========================================="
 
           aws ssm get-command-invocation \
@@ -291,22 +374,128 @@ jobs:
             --query 'Status' \
             --output text)
 
-          RESPONSE_CODE=$(aws ssm get-command-invocation \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID" \
-            --query 'ResponseCode' \
-            --output text)
-
-          echo ""
-          echo "SSM Status: $STATUS"
-          echo "SSM Response Code: $RESPONSE_CODE"
-
           if [ "$STATUS" != "Success" ]; then
-            echo "ERROR: Deployment failed on EC2."
+            echo "ERROR: Deployment failed"
             exit 1
           fi
 
           echo "Deployment successful!"
+
+
+      # - name: Roll out new image via SSM
+      #   id: deploy
+      #   env:
+      #     IMAGE: ${{ needs.build-scan-push.outputs.image }}
+      #   run: |
+      #     set -euo pipefail
+
+      #     INSTANCE_ID=$(aws ec2 describe-instances \
+      #       --filters \
+      #         "Name=tag:Name,Values=risk-mlops-node" \
+      #         "Name=instance-state-name,Values=running" \
+      #       --query 'Reservations[0].Instances[0].InstanceId' \
+      #       --output text)
+
+      #     if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" = "None" ]; then
+      #       echo "ERROR: No running EC2 instance found with tag Name=risk-mlops-node"
+      #       exit 1
+      #     fi
+
+      #     echo "Deploying to instance: $INSTANCE_ID"
+      #     echo "Image: $IMAGE"
+
+      #     COMMAND_ID=$(aws ssm send-command \
+      #       --instance-ids "$INSTANCE_ID" \
+      #       --document-name "AWS-RunShellScript" \
+      #       --parameters commands="[
+      #         \"set -e\",
+      #         \"echo '=== Node ==='\",
+      #         \"hostname\",
+      #         \"echo '=== K3s ==='\",
+      #         \"sudo k3s --version\",
+      #         \"echo '=== Current deployment ==='\",
+      #         \"sudo k3s kubectl get deployment risk-mlops-api -n risk-mlops -o wide\",
+      #         \"echo '=== Updating image ==='\",
+      #         \"sudo k3s kubectl set image deployment/risk-mlops-api risk-mlops-api=$IMAGE -n risk-mlops\",
+      #         \"echo '=== Waiting for rollout ==='\",
+      #         \"sudo k3s kubectl rollout status deployment/risk-mlops-api -n risk-mlops --timeout=120s\",
+      #         \"echo '===  Verify deployed image ==='\"
+
+      #         DEPLOYED_IMAGE=$(sudo k3s kubectl get deployment risk-mlops-api \
+      #           -n risk-mlops \
+      #           -o jsonpath='{.spec.template.spec.containers[?(@.name=="risk-mlops-api")].image}')
+
+      #         echo "Expected: $IMAGE"
+      #         echo "Deployed: $DEPLOYED_IMAGE"
+
+      #         if [ "$DEPLOYED_IMAGE" != "$IMAGE" ]; then
+      #           echo "ERROR: Deployment image does not match expected image"
+      #           exit 1
+      #         fi
+
+      #         \"echo '=== Deployment ==='\",
+      #         \"sudo k3s kubectl get deployment risk-mlops-api -n risk-mlops -o wide\",
+      #         \"echo '=== Pods ==='\",
+      #         \"sudo k3s kubectl get pods -n risk-mlops -o wide\"
+      #       ]" \
+      #       --query "Command.CommandId" \
+      #       --output text)
+
+      #     echo "SSM Command ID: $COMMAND_ID"
+
+      #     echo "Waiting for SSM command to finish..."
+
+      #     for i in {1..40}; do
+      #       STATUS=$(aws ssm get-command-invocation \
+      #         --command-id "$COMMAND_ID" \
+      #         --instance-id "$INSTANCE_ID" \
+      #         --query 'Status' \
+      #         --output text)
+
+      #       echo "Attempt $i/40 - SSM status: $STATUS"
+
+      #       case "$STATUS" in
+      #         Success|Failed|Cancelled|TimedOut|Cancelling)
+      #           break
+      #           ;;
+      #       esac
+
+      #       sleep 5
+      #     done
+
+      #     echo ""
+      #     echo "=========================================="
+      #     echo "SSM COMMAND RESULT"
+      #     echo "=========================================="
+
+      #     aws ssm get-command-invocation \
+      #       --command-id "$COMMAND_ID" \
+      #       --instance-id "$INSTANCE_ID" \
+      #       --query '{Status:Status,ResponseCode:ResponseCode,StdOut:StandardOutputContent,StdErr:StandardErrorContent}' \
+      #       --output json
+
+      #     STATUS=$(aws ssm get-command-invocation \
+      #       --command-id "$COMMAND_ID" \
+      #       --instance-id "$INSTANCE_ID" \
+      #       --query 'Status' \
+      #       --output text)
+
+      #     RESPONSE_CODE=$(aws ssm get-command-invocation \
+      #       --command-id "$COMMAND_ID" \
+      #       --instance-id "$INSTANCE_ID" \
+      #       --query 'ResponseCode' \
+      #       --output text)
+
+      #     echo ""
+      #     echo "SSM Status: $STATUS"
+      #     echo "SSM Response Code: $RESPONSE_CODE"
+
+      #     if [ "$STATUS" != "Success" ]; then
+      #       echo "ERROR: Deployment failed on EC2."
+      #       exit 1
+      #     fi
+
+      #     echo "Deployment successful!"
 
 
       # - name: Roll out new image via SSM

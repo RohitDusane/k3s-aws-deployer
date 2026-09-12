@@ -11,14 +11,17 @@ metadata:
 spec:
   replicas: 2
   revisionHistoryLimit: 5
+
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+
   selector:
     matchLabels:
       app.kubernetes.io/name: risk-mlops-api
+
   template:
     metadata:
       labels:
@@ -30,21 +33,32 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8000"
         prometheus.io/path: "/metrics"
+
     spec:
+      imagePullSecrets:
+        - name: ecr-registry
+
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001   # must match --uid in the Dockerfile's `useradd` line
         fsGroup: 10001
+
       containers:
         - name: risk-mlops-api
-          image: risk-mlops-api:1.0.0
+          # CI/CD replaces this with:
+          # 146637284455.dkr.ecr.us-east-1.amazonaws.com/risk-mlops-api:<short-sha>
+          image: 146637284455.dkr.ecr.us-east-1.amazonaws.com/risk-mlops-api:0000000
+          imagePullPolicy: IfNotPresent
           imagePullPolicy: IfNotPresent   # local image imported into k3s containerd
+          
           ports:
             - name: http
               containerPort: 8000
+
           envFrom:
             - configMapRef:
                 name: risk-mlops-config
+
           resources:
             requests:
               cpu: "100m"
@@ -52,6 +66,7 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false   # set true once you confirm no runtime writes (e.g. logs) go to the image fs
@@ -67,6 +82,7 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 60   # up to 150s to load the model
+
           readinessProbe:
             httpGet:
               path: /api/v1/ready
@@ -75,6 +91,7 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
+
           livenessProbe:
             httpGet:
               path: /api/v1/health
@@ -83,7 +100,9 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 3
             failureThreshold: 3
+
       terminationGracePeriodSeconds: 30
+
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -95,6 +114,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: risk-mlops-api
+
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -106,8 +126,10 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: risk-mlops-api
+
   minReplicas: 2
   maxReplicas: 5
+  
   metrics:
     - type: Resource
       resource:
