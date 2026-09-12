@@ -14,12 +14,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Build tools — needed only if a dependency has no prebuilt wheel for the
 # target architecture (this bites you specifically on arm64/Graviton).
 # Stays in this stage only; never copied into the runtime image.
-# RUN apt-get update \
-#     && apt-get upgrade -y \
-#     && apt-get install -y --no-install-recommends \
-#         build-essential \
-#     && rm -rf /var/lib/apt/lists/*
-
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
@@ -28,9 +22,6 @@ RUN apt-get update \
 RUN python -m venv /opt/venv
 
 COPY requirements-serving.txt .
-
-# RUN pip install --no-cache-dir --upgrade pip \
-#     && pip install --no-cache-dir -r requirements-serving.txt
 
 RUN /opt/venv/bin/pip install --no-cache-dir -r requirements-serving.txt
 
@@ -58,10 +49,11 @@ RUN apt-get update \
 
 COPY --from=builder /opt/venv /opt/venv
 
-WORKDIR /
+WORKDIR /app
 
 COPY app/ /app/
 COPY models/ /app/models/
+
 
 # Non-root user — UID 10001 must match runAsUser in k8s/deploy.yaml exactly,
 # or Kubernetes' securityContext will override this and you'll get
