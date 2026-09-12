@@ -1,20 +1,20 @@
+import time
+
 from sklearn.metrics import (
     accuracy_score,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
 )
 
 from app.metrics import (
     MODEL_ACCURACY,
-    MODEL_PRECISION,
-    MODEL_RECALL,
-    MODEL_F1_SCORE,
     MODEL_EVALUATION_SAMPLES,
     MODEL_EVALUATION_TIMESTAMP,
+    MODEL_F1_SCORE,
+    MODEL_PRECISION,
+    MODEL_RECALL,
 )
-
-import time
 
 
 def evaluate_model(

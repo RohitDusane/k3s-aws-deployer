@@ -1,17 +1,17 @@
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api.routes import router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.services.model_service import ModelService
-from pathlib import Path
 
 # =====================================================
 # PATHS
@@ -73,10 +73,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description=(
-        "Production-oriented REST API for "
-        "financial transaction fraud-risk scoring."
-    ),
+    description=("Production-oriented REST API for " "financial transaction fraud-risk scoring."),
     lifespan=lifespan,
 )
 
@@ -123,6 +120,7 @@ app.mount(
     StaticFiles(directory=FRONTEND_DIR, html=True),
     name="frontend",
 )
+
 
 # =====================================================
 # FRONTEND HOME PAGE

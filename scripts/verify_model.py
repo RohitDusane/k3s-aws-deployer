@@ -6,7 +6,6 @@ import pandas
 import scipy
 import sklearn
 
-
 MODEL_PATH = "models/fraud_pipeline.joblib"
 
 

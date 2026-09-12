@@ -1,8 +1,9 @@
 import numpy as np
-from app.metrics import (MODEL_PREDICTION_DRIFT, MODEL_PREDICTION_DRIFT_STATUS)
+
+from app.metrics import MODEL_PREDICTION_DRIFT, MODEL_PREDICTION_DRIFT_STATUS
+
 
 def calculate_psi(expected, actual, bins=10):
-
     expected = np.asarray(expected, dtype=float)
     actual = np.asarray(actual, dtype=float)
 
@@ -14,35 +15,18 @@ def calculate_psi(expected, actual, bins=10):
 
     breakpoints = np.linspace(0, 1, bins + 1)
 
-    expected_counts, _ = np.histogram(
-        expected,
-        bins=breakpoints
-    )
+    expected_counts, _ = np.histogram(expected, bins=breakpoints)
 
-    actual_counts, _ = np.histogram(
-        actual,
-        bins=breakpoints
-    )
+    actual_counts, _ = np.histogram(actual, bins=breakpoints)
 
     expected_pct = expected_counts / max(expected_counts.sum(), 1)
     actual_pct = actual_counts / max(actual_counts.sum(), 1)
 
-    expected_pct = np.clip(
-        expected_pct,
-        0.0001,
-        None
-    )
+    expected_pct = np.clip(expected_pct, 0.0001, None)
 
-    actual_pct = np.clip(
-        actual_pct,
-        0.0001,
-        None
-    )
+    actual_pct = np.clip(actual_pct, 0.0001, None)
 
-    psi = np.sum(
-        (actual_pct - expected_pct)
-        * np.log(actual_pct / expected_pct)
-    )
+    psi = np.sum((actual_pct - expected_pct) * np.log(actual_pct / expected_pct))
 
     return float(psi)
 

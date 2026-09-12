@@ -17,15 +17,19 @@ def client():
         # Simulate a successfully loaded model for API tests.
         self.model = object()
 
-    with patch(
-        "app.services.model_service.ModelService.load",
-        new=fake_load,
-    ), patch(
-        "app.services.model_service.ModelService.unload",
-        return_value=None,
-    ), patch(
-        "app.services.model_service.ModelService.predict",
-        return_value=(0, 0.0234),
+    with (
+        patch(
+            "app.services.model_service.ModelService.load",
+            new=fake_load,
+        ),
+        patch(
+            "app.services.model_service.ModelService.unload",
+            return_value=None,
+        ),
+        patch(
+            "app.services.model_service.ModelService.predict",
+            return_value=(0, 0.0234),
+        ),
     ):
         from app.main import app
 

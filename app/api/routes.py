@@ -1,23 +1,22 @@
 import logging
+import time
 
 from fastapi import APIRouter, HTTPException, Request, status
 
 from app.core.config import settings
+from app.metrics import (
+    FRAUD_PROBABILITY,
+    HIGH_RISK_PREDICTIONS_TOTAL,
+    PREDICTION_ERRORS_TOTAL,
+    PREDICTION_LATENCY,
+    PREDICTION_RESULTS_TOTAL,
+    PREDICTIONS_TOTAL,
+)
 from app.schemas.transaction import (
     HealthResponse,
     PredictionResponse,
     ReadinessResponse,
     TransactionRequest,
-)
-import time
-
-from app.metrics import (
-    PREDICTIONS_TOTAL,
-    PREDICTION_RESULTS_TOTAL,
-    PREDICTION_ERRORS_TOTAL,
-    PREDICTION_LATENCY,
-    HIGH_RISK_PREDICTIONS_TOTAL,
-    FRAUD_PROBABILITY,
 )
 
 logger = logging.getLogger(__name__)
@@ -87,7 +86,6 @@ def predict(
     payload: TransactionRequest,
     request: Request,
 ) -> PredictionResponse:
-
     model_service = request.app.state.model_service
 
     if not model_service.is_loaded:
@@ -120,7 +118,7 @@ def predict(
         prediction, probability = model_service.predict(input_data)
         # Make sure probability is a normal float
         probability = float(probability)
-        
+
         # -----------------------------
         # TOTAL PREDICTION COUNTER
         # -----------------------------
@@ -133,7 +131,7 @@ def predict(
         # FRAUD PROBABILITY
         # -----------------------------
         FRAUD_PROBABILITY.observe(probability)
-            
+
         # -----------------------------
         # PREDICTION RESULT
         # -----------------------------
@@ -153,7 +151,7 @@ def predict(
         if probability >= HIGH_RISK_THRESHOLD:
             HIGH_RISK_PREDICTIONS_TOTAL.inc()
 
-    except Exception:
+    except Exception as err:
         # -----------------------------
         # PREDICTION ERROR
         # -----------------------------
@@ -167,7 +165,7 @@ def predict(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Model inference failed",
-        )
+        ) from err
     finally:
         # -----------------------------
         # INFERENCE LATENCY

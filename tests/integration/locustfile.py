@@ -8,7 +8,8 @@ Then open http://localhost:8089 to set concurrent users and spawn rate.
 For a scripted/CI run: locust -f tests/locustfile.py --host http://localhost:8000 \
     --headless -u 20 -r 5 -t 1m --csv=loadtest_results
 """
-from locust import HttpUser, task, between
+
+from locust import HttpUser, between, task
 
 
 class ApiUser(HttpUser):

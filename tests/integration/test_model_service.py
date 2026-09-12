@@ -9,6 +9,7 @@ def test_load_raises_on_missing_model_path(tmp_path):
     with pytest.raises(FileNotFoundError):
         svc.load()
 
+
 # TODO once model_service.py internals are confirmed, add:
 #   - test_load_sets_ready_state(): svc.load() against a real/fixture model
 #     artifact, then assert whatever flag/attribute marks it loaded.

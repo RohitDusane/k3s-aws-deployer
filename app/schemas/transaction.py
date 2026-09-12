@@ -1,6 +1,6 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
 
+from pydantic import BaseModel, ConfigDict, Field
 
 TransactionType = Literal[
     "CASH_IN",
@@ -46,7 +46,6 @@ class TransactionRequest(BaseModel):
         examples=["TRANSFER"],
     )
 
-
     merchant_category: str = Field(
         ...,
         description="Merchant category",
@@ -88,6 +87,7 @@ class PredictionResponse(BaseModel):
     """
     Output returned by the fraud prediction API.
     """
+
     is_fraud: int = Field(
         ...,
         description="1 if fraudulent, otherwise 0",
@@ -102,8 +102,14 @@ class PredictionResponse(BaseModel):
         examples=[0.0234],
     )
 
-    model_name: str = Field(..., examples=["fraud_pipeline"],)
-    model_version: str = Field(..., examples=["1.0.0"],)
+    model_name: str = Field(
+        ...,
+        examples=["fraud_pipeline"],
+    )
+    model_version: str = Field(
+        ...,
+        examples=["1.0.0"],
+    )
 
 
 class HealthResponse(BaseModel):

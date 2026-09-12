@@ -30,6 +30,7 @@ def test_health_endpoint_reflects_model_loaded_state(client):
     body = resp.json()
     assert body != {}
 
+
 def test_health_endpoint_is_plain_liveness(client):
     # Confirmed from local testing: {"status": "healthy"} — no model check.
     # This is what K8s livenessProbe hits; it should stay cheap and fast.

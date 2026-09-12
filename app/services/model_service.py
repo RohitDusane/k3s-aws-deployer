@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+
 import joblib
 import pandas as pd
 
@@ -8,6 +9,7 @@ class ModelService:
     """
     Handles loading and inference for the fraud detection model.
     """
+
     def __init__(self, model_path: str):
         self.model_path = Path(model_path)
         self.model: Any | None = None
