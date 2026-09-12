@@ -48,7 +48,6 @@ spec:
           # CI/CD replaces this with:
           # 146637284455.dkr.ecr.us-east-1.amazonaws.com/risk-mlops-api:<short-sha>
           image: 146637284455.dkr.ecr.us-east-1.amazonaws.com/risk-mlops-api:0000000
-          imagePullPolicy: IfNotPresent
           imagePullPolicy: IfNotPresent   # local image imported into k3s containerd
           
           ports:
@@ -129,7 +128,7 @@ spec:
 
   minReplicas: 2
   maxReplicas: 5
-  
+
   metrics:
     - type: Resource
       resource:
