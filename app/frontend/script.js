@@ -30,6 +30,8 @@ const savedSettings = loadSettings();
 let API_BASE_URL =
     savedSettings.apiBaseUrl || DEFAULT_API_BASE_URL;
 
+let API_KEY = savedSettings.apiKey || "";
+
 let currentEnvironment =
     savedSettings.environment || "development";
 
@@ -494,7 +496,12 @@ async function predictTransaction(payload) {
                         "application/json",
 
                     "Accept":
-                        "application/json"
+                        "application/json",
+
+                    // Only sent if a key is configured in Settings — an
+                    // empty header is harmless, the backend rejects
+                    // missing/wrong keys with 401 either way.
+                    "X-API-Key": API_KEY
                 },
 
                 body:
@@ -518,6 +525,18 @@ async function predictTransaction(payload) {
 
         throw new Error(
             "Invalid transaction data. Please check the form."
+        );
+
+    }
+
+    /*
+     * Missing or invalid API key
+     */
+
+    if (response.status === 401) {
+
+        throw new Error(
+            "API key missing or invalid. Check it in Settings."
         );
 
     }
@@ -1530,6 +1549,7 @@ function renderModelMonitorPage() {
 ===================================================== */
 
 const apiUrlSettingInput = document.getElementById("api-url-setting");
+const apiKeySettingInput = document.getElementById("api-key-setting");
 const environmentSettingSelect = document.getElementById("environment-setting");
 const saveSettingsButton = document.getElementById("save-settings");
 const testConnectionButton = document.getElementById("test-connection");
@@ -1537,6 +1557,7 @@ const settingsHistoryCount = document.getElementById("settings-history-count");
 const settingsStorageUsage = document.getElementById("settings-storage-usage");
 const clearHistorySettingsButton = document.getElementById("clear-history-settings");
 const environmentValueDisplay = document.querySelector(".environment-value");
+const footerEnvBadge = document.getElementById("footer-env-badge");
 
 function applyEnvironmentToSidebar(environment) {
 
@@ -1552,6 +1573,58 @@ function applyEnvironmentToSidebar(environment) {
 
     environmentValueDisplay.lastChild.textContent =
         isProduction ? " Production" : " Development";
+
+    // Keep the footer badge in sync with the same setting rather than
+    // tracking a second, independent piece of state.
+    if (footerEnvBadge) {
+
+        const footerDot = footerEnvBadge.querySelector(".status-dot");
+
+        if (footerDot) {
+            footerDot.classList.toggle("green", !isProduction);
+            footerDot.classList.toggle("yellow", isProduction);
+        }
+
+        footerEnvBadge.lastChild.textContent =
+            isProduction ? " Production" : " Development";
+
+    }
+
+}
+
+/* =====================================================
+   FOOTER — copyright year + build reference
+   The build SHA comes from a <meta name="build-sha"> tag in index.html,
+   left as "unknown" locally. Your CI pipeline can inject the real git SHA
+   during the Docker build — see the Dockerfile/ci.yml note that goes with
+   this change for the exact one-line sed command.
+===================================================== */
+
+function initFooter() {
+
+    const copyrightEl = document.getElementById("footer-copyright");
+    const buildEl = document.getElementById("footer-build");
+
+    if (copyrightEl) {
+        copyrightEl.textContent = `© ${new Date().getFullYear()} RiskGuard`;
+    }
+
+    if (buildEl) {
+
+        const metaTag = document.querySelector('meta[name="build-sha"]');
+        const sha = metaTag ? metaTag.getAttribute("content") : "unknown";
+
+        if (sha && sha !== "unknown") {
+            buildEl.textContent = `build ${sha.slice(0, 7)}`;
+
+            buildEl.href =
+                `https://github.com/RohitDusane/k3s-aws-deployer/commit/${sha}`;
+        } else {
+            buildEl.textContent = "local build";
+            buildEl.removeAttribute("href");
+        }
+
+    }
 
 }
 
@@ -1571,6 +1644,7 @@ function refreshSettingsStorageInfo() {
 function initSettingsPage() {
 
     if (apiUrlSettingInput) apiUrlSettingInput.value = API_BASE_URL;
+    if (apiKeySettingInput) apiKeySettingInput.value = API_KEY;
     if (environmentSettingSelect) environmentSettingSelect.value = currentEnvironment;
 
     applyEnvironmentToSidebar(currentEnvironment);
@@ -1581,12 +1655,14 @@ function initSettingsPage() {
         saveSettingsButton.addEventListener("click", () => {
 
             const newUrl = apiUrlSettingInput.value.trim() || DEFAULT_API_BASE_URL;
+            const newKey = apiKeySettingInput ? apiKeySettingInput.value.trim() : "";
             const newEnvironment = environmentSettingSelect.value;
 
             API_BASE_URL = newUrl;
+            API_KEY = newKey;
             currentEnvironment = newEnvironment;
 
-            saveSettingsToStorage({ apiBaseUrl: newUrl, environment: newEnvironment });
+            saveSettingsToStorage({ apiBaseUrl: newUrl, apiKey: newKey, environment: newEnvironment });
             applyEnvironmentToSidebar(newEnvironment);
 
             showToast("Settings saved", "success");
@@ -1657,6 +1733,7 @@ renderTransactionsPage();
 renderModelMonitorPage();
 initSettingsPage();
 refreshSettingsStorageInfo();
+initFooter();
 
 checkSystemStatus();
 
@@ -1670,3 +1747,4 @@ setInterval(
 );
 
 });
+

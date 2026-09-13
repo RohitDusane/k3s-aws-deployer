@@ -109,6 +109,8 @@ jobs:
           IMAGE="${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${SHORT_SHA}"
 
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
           echo "Full Git SHA: $GITHUB_SHA"
           echo "Short Git SHA: $SHORT_SHA"
           echo "Docker image: $IMAGE"
@@ -128,6 +130,8 @@ jobs:
           context: .
           platforms: linux/arm64
           tags: ${{ steps.image-tag.outputs.image }}
+          build-args: |
+            GIT_SHA=${{ steps.image-tag.outputs.short_sha }}
           load: true    # load into the local Docker daemon so Trivy can scan it
           push: false
 

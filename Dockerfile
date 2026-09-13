@@ -52,7 +52,11 @@ COPY --from=builder /opt/venv /opt/venv
 
 WORKDIR /app
 
+ARG GIT_SHA=unknown
+
 COPY app/ /app/app/
+RUN sed -i "s/unknown/${GIT_SHA}/" /app/app/frontend/index.html
+
 COPY models/ /app/models/
 
 

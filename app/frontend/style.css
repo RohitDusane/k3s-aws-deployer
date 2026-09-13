@@ -136,8 +136,8 @@ flex-direction: column;
 
 padding: 28px 18px;
 
-background: var(--navy);
-color: white;
+background: #101a33;
+color: rgb(255, 255, 255);
 
 }
 
@@ -1281,9 +1281,56 @@ FOOTER
 .footer {
 display: flex;
 justify-content: space-between;
-padding:24px 2px 0;
+align-items: center;
+flex-wrap: wrap;
+gap: 8px;
+padding: 16px 2px 0;
+margin-top: 8px;
+border-top: 1px solid var(--border);
 color: #9aa3b2;
-font-size: 9px;
+font-size: 10px;
+}
+
+.footer-left, .footer-right {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.footer-divider {
+color: #d3d8e2;
+}
+
+.footer a {
+color: #6b7488;
+text-decoration: none;
+font-weight: 600;
+}
+
+.footer a:hover {
+color: var(--blue);
+}
+
+.footer-env-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 3px 10px;
+border-radius: 20px;
+background: #f4f5f8;
+font-weight: 700;
+color: #566176;
+}
+
+.footer-stack {
+color: #b3bac8;
+}
+
+@media (max-width: 800px) {
+.footer {
+    flex-direction: column;
+    align-items: flex-start;
+}
 }
 
 /* =====================================================
