@@ -1,7 +1,7 @@
 import logging
 import time
 
-from fastapi import APIRouter, HTTPException, Request, status, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.core.config import settings
 from app.core.security import verify_api_key
