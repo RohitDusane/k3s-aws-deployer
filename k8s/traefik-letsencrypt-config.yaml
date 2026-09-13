@@ -1,0 +1,27 @@
+# K3s's built-in Traefik doesn't have a Let's Encrypt resolver configured
+# out of the box — the `certResolver: letsencrypt` reference in
+# service.yaml's IngressRoute needs this to exist first, or certificates
+# will silently never be issued (requests will just fail TLS or fall back
+# to Traefik's self-signed default cert).
+#
+# K3s watches HelmChartConfig resources and automatically re-applies the
+# Traefik chart with these values — no manual Helm commands needed, but it
+# can take a minute or two to reconcile after you apply this.
+#
+# Replace you@example.com with a real address — Let's Encrypt uses it for
+# expiry notifications, not for anything user-facing.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    additionalArguments:
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=you@example.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
+    persistence:
+      enabled: true
+      path: /data

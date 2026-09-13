@@ -14,17 +14,13 @@ class Settings(BaseSettings):
 
     app_name: str = "Fintech Risk Scoring MLOps API"
     app_version: str = "1.0.0"
+    api_key: str = ""   # populated from API_KEY env var
 
     environment: str = Field(default="development", description="Application environment")
 
-    model_path: str = Field(
-        default="models/fraud_pipeline.joblib", description="Path to trained ML model"
-    )
-
+    model_path: str = Field(default="models/fraud_pipeline.joblib", description="Path to trained ML model")
     api_prefix: str = "/api/v1"
-
     log_level: str = "INFO"
-
     model_name: str = "fraud-risk-model"
 
     model_version: str = "1.0.0"

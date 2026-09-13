@@ -14,26 +14,55 @@ spec:
       port: 8000
       targetPort: 8000
 ---
-# k3s ships Traefik by default, so a plain Ingress is enough to get the API
-# reachable at http://risk-mlops.local/ once you add that host to your
-# Windows hosts file pointing at the WSL/K3s node IP. Optional, but this is
-# how you replace "docker run -p 8000:8000" in a real cluster.
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# Replaces the plain Ingress with a Traefik IngressRoute so /metrics can be
+# blocked and /predict can be rate-limited at the routing layer, not inside
+# the application. Update the `Host(...)` values below to your real domain
+# or nip.io hostname from the public-IP walkthrough before applying.
+#
+# Router priority matters here: Traefik evaluates higher-priority routers
+# first, so the /metrics block and the /predict rate limit both need a
+# higher number than the catch-all, or the catch-all would win and neither
+# more-specific rule would ever apply.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: risk-mlops-api
   namespace: risk-mlops
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
-  rules:
-    - host: risk-mlops.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: risk-mlops-api
-                port:
-                  number: 8000
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`52.1.55.147.nip.io`) && PathPrefix(`/metrics`)
+      # match: Host(`riskguard.abc-ops.co.in`) && PathPrefix(`/metrics`)
+      52.1.55.147
+      kind: Rule
+      priority: 100
+      middlewares:
+        - name: block-metrics-externally
+      services:
+        - name: risk-mlops-api
+          port: 8000
+
+    - match: Host(`52.1.55.147.nip.io`) && PathPrefix(`/api/v1/predict`)
+      # match: Host(`riskguard.abc-ops.co.in`) && PathPrefix(`/api/v1/predict`)
+      kind: Rule
+      priority: 90
+      middlewares:
+        - name: predict-rate-limit
+        - name: security-headers
+      services:
+        - name: risk-mlops-api
+          port: 8000
+
+    - match: Host(`52.1.55.147.nip.io`)
+      # match: Host(`riskguard.abc-ops.co.in`)
+      kind: Rule
+      priority: 1
+      middlewares:
+        - name: security-headers
+      services:
+        - name: risk-mlops-api
+          port: 8000
+  tls:
+    certResolver: letsencrypt

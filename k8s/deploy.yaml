@@ -57,6 +57,13 @@ spec:
           envFrom:
             - configMapRef:
                 name: risk-mlops-config
+          
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-auth
+                  key: apiKey
 
           resources:
             requests:
@@ -70,13 +77,15 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false   # set true once you confirm no runtime writes (e.g. logs) go to the image fs
             capabilities:
-              drop: ["ALL"]
+              drop: 
+                - ALL
           # Model loading in the lifespan handler can take a few seconds —
           # startupProbe gives it room without weakening liveness/readiness.
           startupProbe:
             httpGet:
-              path: /api/v1/health
+              path: /api/v1/ready
               port: 8000
+
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 3
@@ -91,6 +100,7 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
 
+          # Process health only
           livenessProbe:
             httpGet:
               path: /api/v1/health

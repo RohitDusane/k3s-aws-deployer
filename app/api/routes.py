@@ -1,9 +1,10 @@
 import logging
 import time
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status, Depends
 
 from app.core.config import settings
+from app.core.security import verify_api_key
 from app.metrics import (
     FRAUD_PROBABILITY,
     HIGH_RISK_PREDICTIONS_TOTAL,
@@ -78,6 +79,7 @@ def root() -> dict:
 
 @router.post(
     "/predict",
+    dependencies=[Depends(verify_api_key)],
     response_model=PredictionResponse,
     status_code=status.HTTP_200_OK,
     summary="Predict fraud risk",

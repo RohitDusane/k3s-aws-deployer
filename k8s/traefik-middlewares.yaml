@@ -1,0 +1,50 @@
+# Three Traefik Middleware CRDs (bundled with K3s, no extra install needed):
+#
+# 1. block-metrics-externally — ipAllowList with a sourceRange that no real
+#    internet client can ever match. Prometheus doesn't need this route at
+#    all — it scrapes via the internal ClusterIP Service DNS
+#    (risk-mlops-api:8000/metrics), never through this public Ingress.
+#    This middleware exists purely to stop a stranger from browsing to
+#    https://your-domain/metrics and reading your internal metric names,
+#    request rates, and error counts.
+#
+# 2. predict-rate-limit — caps requests to /api/v1/predict specifically.
+#    average=5 means 5 req/sec sustained per client IP, burst=10 allows
+#    short spikes above that. Tune these once you know real traffic
+#    patterns; they're deliberately conservative for a demo-scale app.
+#
+# 3. security-headers — HSTS, no-sniff, frame-deny. Cheap, standard,
+#    catches nothing sophisticated but closes the obvious gaps.
+
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: block-metrics-externally
+  namespace: risk-mlops
+spec:
+  ipAllowList:
+    sourceRange:
+      - "255.255.255.255/32"   # matches no real client — effectively denies all external traffic hitting this route
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: predict-rate-limit
+  namespace: risk-mlops
+spec:
+  rateLimit:
+    average: 5
+    burst: 10
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: risk-mlops
+spec:
+  headers:
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    contentTypeNosniff: true
+    frameDeny: true
+    browserXssFilter: true
