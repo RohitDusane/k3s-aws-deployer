@@ -266,16 +266,40 @@ jobs:
             -n risk-mlops \
             -o wide
 
+          echo "=== Refreshing ECR credentials ==="
+
+          ECR_PASSWORD=\$(aws ecr get-login-password \
+            --region us-east-1)
+
+          sudo k3s kubectl create secret docker-registry ecr-registry \
+            --docker-server=146637284455.dkr.ecr.us-east-1.amazonaws.com \
+            --docker-username=AWS \
+            --docker-password="\$ECR_PASSWORD" \
+            -n risk-mlops \
+            --dry-run=client \
+            -o yaml | sudo k3s kubectl apply -f -
+
+          unset ECR_PASSWORD
+
+          echo "=== Configuring ECR imagePullSecret ==="
+
+          sudo k3s kubectl patch deployment risk-mlops-api \
+            -n risk-mlops \
+            --type='strategic' \
+            -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"ecr-registry"}]}}}}'
+
           echo "=== Target image ==="
           echo "$IMAGE"
 
           echo "=== Updating image ==="
+
           sudo k3s kubectl set image \
             deployment/risk-mlops-api \
             risk-mlops-api=$IMAGE \
             -n risk-mlops
 
           echo "=== Waiting for rollout ==="
+
           sudo k3s kubectl rollout status \
             deployment/risk-mlops-api \
             -n risk-mlops \
@@ -292,6 +316,19 @@ jobs:
 
           if [ "\$DEPLOYED_IMAGE" != "$IMAGE" ]; then
             echo "ERROR: Deployment image does not match expected image"
+            exit 1
+          fi
+
+          echo "=== Verify imagePullSecret ==="
+
+          IMAGE_PULL_SECRET=\$(sudo k3s kubectl get deployment risk-mlops-api \
+            -n risk-mlops \
+            -o jsonpath='{.spec.template.spec.imagePullSecrets[0].name}')
+
+          echo "Image pull secret: \$IMAGE_PULL_SECRET"
+
+          if [ "\$IMAGE_PULL_SECRET" != "ecr-registry" ]; then
+            echo "ERROR: ecr-registry is not configured as imagePullSecret"
             exit 1
           fi
 
@@ -331,6 +368,7 @@ jobs:
           echo "Image: $IMAGE"
           EOF
           )
+
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
