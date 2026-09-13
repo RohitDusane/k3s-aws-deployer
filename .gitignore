@@ -1,104 +1,99 @@
-# Byte-compiled / optimized
+# ============================================================
+# Python
+# ============================================================
 __pycache__/
 *.py[cod]
 *.egg-info/
 .eggs/
-build/
-dist/
 
+# ============================================================
 # Virtual environments
+# ============================================================
 .venv/
 venv/
-
-# Environment / secrets
-.env
-.env.*
-!.env.example
-
-
-# Tooling caches
-.mypy_cache/
-.ruff_cache/
-.pytest_cache/
-
-# OS / editor
-.DS_Store
-.idea/
-.vscode/
-
-# Docker artifacts
-*.tar
-
-.pytest_cache/
-risk-mlops-api.tar/
-requirements-training.txt
-index_abt_old.html
-data/processed/
-reports/
-_readme.md
-budget-notifications.json
-app\\frontend\\index-2.html
-app\\frontend\\script-2.js
-app\\frontend\\style-2.css
-
-
-
-# Python
-__pycache__/
-*.py[cod]
-
-# Virtual environments
-venv/
-.venv/
 env/
 
-# Environment variables
+# ============================================================
+# Build / distribution
+# ============================================================
+build/
+dist/
+*.tar
+
+# ============================================================
+# Environment / secrets
+# ============================================================
 .env
 .env.*
 !.env.example
 
-# AWS credentials
 .aws/
 
+# ============================================================
+# Testing / linting / tooling caches
+# ============================================================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+
+# ============================================================
 # Jupyter
+# ============================================================
 .ipynb_checkpoints/
 
-# DVC cache
+# ============================================================
+# DVC
+# ============================================================
 .dvc/cache/
 
-# Data
+# ============================================================
+# Data / generated artifacts
+# ============================================================
 data/processed/
-
-# Models
 artifacts/
 *.pkl
 *.joblib
 
-# Serving artifacts committed intentionally
-!models/
-!models/fraud_pipeline.joblib
-!models/threshold.json
-
-
+# ============================================================
 # Logs
+# ============================================================
 *.log
 logs/
 
-# IDE
+# ============================================================
+# IDE / OS
+# ============================================================
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Secrets
+# ============================================================
+# Kubernetes / local configuration
+# ============================================================
 k8s/*secret*.yaml
-
-.env
-.env.*
-!.env.example
-
-.coverage
 k8s/kind-cluster.yaml
 
+# ============================================================
+# Project-specific files
+# ============================================================
+requirements-training.txt
+index_abt_old.html
+reports/
+_readme.md
+budget-notifications.json
+
+# ============================================================
+# Frontend temporary/alternate files
+# ============================================================
+app/frontend/index-2.html
+app/frontend/script-2.js
+app/frontend/style-2.css
+
+# ============================================================
+# Serving artifacts committed intentionally
+# ============================================================
+!models/
+!models/fraud_pipeline.joblib
+!models/threshold.json
