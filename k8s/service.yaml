@@ -35,7 +35,6 @@ spec:
   routes:
     - match: Host(`52.1.55.147.nip.io`) && PathPrefix(`/metrics`)
       # match: Host(`riskguard.abc-ops.co.in`) && PathPrefix(`/metrics`)
-      52.1.55.147
       kind: Rule
       priority: 100
       middlewares:
