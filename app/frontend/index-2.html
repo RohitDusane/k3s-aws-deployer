@@ -131,9 +131,9 @@
                         <select id="transaction_type" name="transaction_type">
                             <option value="TRANSFER">TRANSFER</option>
                             <option value="PAYMENT">PAYMENT</option>
-                            <option value="CASH_IN">CASH_IN</option>
-                            <option value="CASH_OUT">CASH_OUT</option>
-                            <option value="DEBIT">DEBIT</option>
+                            <option value="WITHDRAWAL">WITHDRAWAL</option>
+                            <option value="PURCHASE">PURCHASE</option>
+                            <option value="DEPOSIT">DEPOSIT</option>
                         </select>
                     </div>
 
@@ -566,15 +566,13 @@
 
         <div class="footer-center">
             <span class="footer-env-badge" id="footer-env-badge">
-                <span class="status-dot green"></span>
-                Development
-            </span>
+                <span class="status-dot yellow"></span> Production</span>
         </div>
 
         <div class="footer-right">
-            <span id="footer-copyright"></span>
+            <span id="footer-copyright">© 2026 RiskGuard</span>
             <span class="footer-divider">·</span>
-            <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/RohitDusane/k3s-aws-deployer" target="_blank" rel="noopener noreferrer">GitHub</a>
             <span class="footer-divider">·</span>
             <span class="footer-stack">Built with FastAPI · Kubernetes · AWS</span>
         </div>

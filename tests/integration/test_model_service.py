@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.model_service import ModelService
+from app.services.model_service2 import ModelService
 
 
 def test_load_raises_on_missing_model_path(tmp_path):

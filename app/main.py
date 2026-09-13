@@ -4,7 +4,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -19,14 +18,11 @@ from app.services.model_service import ModelService
 APP_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = APP_DIR / "frontend"
 
-print("APP_DIR =", APP_DIR)
-print("FRONTEND_DIR =", FRONTEND_DIR)
-print("CSS EXISTS =", (FRONTEND_DIR / "style.css").exists())
-
-
 configure_logging(settings.log_level)
 
 logger = logging.getLogger(__name__)
+
+logger.debug("APP_DIR=%s FRONTEND_DIR=%s css_exists=%s", APP_DIR, FRONTEND_DIR, (FRONTEND_DIR / "style.css").exists())
 
 
 @asynccontextmanager
@@ -82,10 +78,14 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:8000",
         "http://127.0.0.1:8000",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+        "https://riskguard.abc-ops.co.in",
+        # Same-origin requests (browser loading the frontend from this same
+        # FastAPI app) don't need CORS at all — this list only matters if
+        # something calls the API from a genuinely different origin
+        # (a separate admin tool, a different subdomain, etc.). The old
+        # localhost:3000/5173 entries were Vite/React dev-server ports this
+        # project never used (the frontend is plain static HTML/JS) —
+        # removed rather than left as an unexplained open door.
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -115,16 +115,13 @@ app.include_router(
 #     name="static",
 # )
 
+# Mounting at "/" already serves index.html for "/" itself (html=True) and
+# every other static asset — a separate explicit @app.get("/") route below
+# this would be unreachable dead code, since this Mount, once matched,
+# never falls through to routes registered after it. Removed for that
+# reason, not just for tidiness.
 app.mount(
     "/",
     StaticFiles(directory=FRONTEND_DIR, html=True),
     name="frontend",
 )
-
-
-# =====================================================
-# FRONTEND HOME PAGE
-# =====================================================
-@app.get("/", include_in_schema=False)
-def frontend():
-    return FileResponse(FRONTEND_DIR / "index.html")

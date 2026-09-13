@@ -20,8 +20,9 @@ spec:
     additionalArguments:
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=you@example.com"
+      - "--certificatesresolvers.letsencrypt.acme.email=stat.data247@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
+      - "--log.level=DEBUG"
     persistence:
       enabled: true
       path: /data

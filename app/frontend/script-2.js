@@ -1614,10 +1614,15 @@ function initFooter() {
         const metaTag = document.querySelector('meta[name="build-sha"]');
         const sha = metaTag ? metaTag.getAttribute("content") : "unknown";
 
-        buildEl.textContent =
-            sha && sha !== "unknown"
-                ? `build ${sha.slice(0, 7)}`
-                : "local build";
+        if (sha && sha !== "unknown") {
+            buildEl.textContent = `build ${sha.slice(0, 7)}`;
+
+            buildEl.href =
+                `https://github.com/RohitDusane/k3s-aws-deployer/commit/${sha}`;
+        } else {
+            buildEl.textContent = "local build";
+            buildEl.removeAttribute("href");
+        }
 
     }
 

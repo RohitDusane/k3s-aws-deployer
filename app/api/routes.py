@@ -13,7 +13,7 @@ from app.metrics import (
     PREDICTION_RESULTS_TOTAL,
     PREDICTIONS_TOTAL,
 )
-from app.schemas.transaction import (
+from app.schemas.transaction2 import (
     HealthResponse,
     PredictionResponse,
     ReadinessResponse,
