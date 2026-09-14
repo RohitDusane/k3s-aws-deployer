@@ -51,16 +51,18 @@ jobs:
             -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json
             k8s/configmap.yaml
             k8s/deploy.yaml
-            k8s/monitoring-alertmanager.yaml
-            k8s/monitoring-grafana-dashboard-provider.yaml
-            k8s/monitoring-grafana-datasource.yaml
-            k8s/monitoring-grafana.yaml
-            k8s/monitoring-kube-state-metrics.yaml
-            k8s/monitoring-prometheus-config.yaml
-            k8s/monitoring-prometheus.yaml
             k8s/namespace.yaml
-            k8s/prometheus-monitor.yaml
             k8s/service.yaml
+            k8s/traefik-middlewares.yaml
+            k8s/traefik-letsencrypt-config.yaml
+            k8s/monitoring/monitoring-alertmanager.yaml
+            k8s/monitoring/monitoring-grafana-dashboard-provider.yaml
+            k8s/monitoring/monitoring-grafana-datasource.yaml
+            k8s/monitoring/monitoring-grafana.yaml
+            k8s/monitoring/monitoring-kube-state-metrics.yaml
+            k8s/monitoring/monitoring-prometheus-config.yaml
+            k8s/monitoring/monitoring-prometheus.yaml
+            k8s/monitoring/prometheus-monitor.yaml           
 
   build-scan-push:
     runs-on: ubuntu-latest
