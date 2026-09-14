@@ -511,7 +511,7 @@ async function predictTransaction(payload) {
                     // Only sent if a key is configured in Settings — an
                     // empty header is harmless, the backend rejects
                     // missing/wrong keys with 401 either way.
-                    "X-API-Key": API_KEY
+                    // "X-API-Key": API_KEY
                 },
 
                 body:

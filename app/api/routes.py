@@ -79,7 +79,7 @@ def root() -> dict:
 
 @router.post(
     "/predict",
-    dependencies=[Depends(verify_api_key)],
+    # dependencies=[Depends(verify_api_key)],
     response_model=PredictionResponse,
     status_code=status.HTTP_200_OK,
     summary="Predict fraud risk",
