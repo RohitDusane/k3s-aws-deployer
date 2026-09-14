@@ -23,8 +23,6 @@ spec:
       - "--certificatesresolvers.letsencrypt.acme.email=MY_EMAIL"
       - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
       
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     persistence:
       enabled: true
       path: /data

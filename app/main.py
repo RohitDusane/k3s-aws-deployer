@@ -79,6 +79,7 @@ app.add_middleware(
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "https://riskguard.abc-ops.co.in",
+        "https://52.1.55.147.nip.io",
         # Same-origin requests (browser loading the frontend from this same
         # FastAPI app) don't need CORS at all — this list only matters if
         # something calls the API from a genuinely different origin

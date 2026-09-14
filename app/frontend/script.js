@@ -9,7 +9,17 @@ document.addEventListener("DOMContentLoaded", () => {
 ===================================================== */
 
 const SETTINGS_KEY = "riskguard.settings.v1";
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+const DEFAULT_API_BASE_URL = 
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "localhost"
+        ? "http://127.0.0.1:8000/api/v1"
+        : `${window.location.origin}/api/v1`;
+
+const apiUrlInput = document.getElementById("api-url-setting");
+
+if (apiUrlInput) {
+    apiUrlInput.value = DEFAULT_API_BASE_URL;
+}
 
 function loadSettings() {
     try {
@@ -1614,10 +1624,15 @@ function initFooter() {
         const metaTag = document.querySelector('meta[name="build-sha"]');
         const sha = metaTag ? metaTag.getAttribute("content") : "unknown";
 
-        buildEl.textContent =
-            sha && sha !== "unknown"
-                ? `build ${sha.slice(0, 7)}`
-                : "local build";
+        if (sha && sha !== "unknown") {
+            buildEl.textContent = `build ${sha.slice(0, 7)}`;
+
+            buildEl.href =
+                `https://github.com/RohitDusane/k3s-aws-deployer/commit/${sha}`;
+        } else {
+            buildEl.textContent = "local build";
+            buildEl.removeAttribute("href");
+        }
 
     }
 
