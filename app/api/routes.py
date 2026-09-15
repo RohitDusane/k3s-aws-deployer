@@ -1,11 +1,11 @@
+import json
 import logging
 import time
-import json
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from fastapi import APIRouter, HTTPException, Request, status
 
 from app.core.config import settings
-from app.core.security import verify_api_key
 from app.metrics import (
     FRAUD_PROBABILITY,
     HIGH_RISK_PREDICTIONS_TOTAL,
