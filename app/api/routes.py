@@ -199,7 +199,7 @@ def model_metrics() -> dict:
     """
     metrics_path = Path(settings.metrics_path)
 
-    if not metrics_path.exists():
+    if not metrics_path.is_file():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No evaluation run found yet.",
