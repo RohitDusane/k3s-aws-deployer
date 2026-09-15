@@ -8,6 +8,7 @@ import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from datetime import datetime, timezone
 from sklearn.calibration import calibration_curve
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
@@ -152,6 +153,7 @@ def compute_threshold_metrics(
                 "fp": int(fp),
                 "tn": int(tn),
                 "fn": int(fn),
+                "accuracy": float((tp + tn) / n) if n > 0 else 0.0,   # ← new
                 "precision": float(precision),
                 "recall": float(recall),
                 "f1": float(f1),
@@ -321,6 +323,14 @@ def main() -> None:
         json.dump(best, f, indent=2)
 
     evaluation_summary = {
+        "evaluated_at": datetime.now(timezone.utc).isoformat(),
+        "headline_metrics": {
+            "accuracy": best["accuracy"],
+            "precision": best["precision"],
+            "recall": best["recall"],
+            "f1": best["f1"],
+            "roc_auc": probability_metrics["roc_auc"],
+        },
         **probability_metrics,
         "positive_rate_test": float(np.mean(y_test.values)),
         "n_test_samples": int(len(y_test)),

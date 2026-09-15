@@ -1503,6 +1503,37 @@ if (clearHistoryButton) {
     clearHistoryButton.addEventListener("click", clearTransactionHistory);
 }
 
+async function fetchAndRenderOfflineMetrics() {
+    const accEl = document.getElementById("metric-accuracy");
+    const precEl = document.getElementById("metric-precision");
+    const recEl = document.getElementById("metric-recall");
+    const f1El = document.getElementById("metric-f1");
+    const tsEl = document.getElementById("eval-timestamp");
+
+    if (!accEl) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/model/metrics`);
+        if (!response.ok) throw new Error(`Status ${response.status}`);
+
+        const data = await response.json();
+        const m = data.metrics || {};
+
+        accEl.textContent  = m.accuracy  != null ? `${(m.accuracy  * 100).toFixed(1)}%` : "—";
+        precEl.textContent = m.precision != null ? `${(m.precision * 100).toFixed(1)}%` : "—";
+        recEl.textContent  = m.recall    != null ? `${(m.recall    * 100).toFixed(1)}%` : "—";
+        f1El.textContent   = m.f1        != null ? `${(m.f1        * 100).toFixed(1)}%` : "—";
+
+        if (tsEl && data.evaluated_at) {
+            tsEl.textContent = `Last evaluated: ${formatTimestamp(data.evaluated_at)}`;
+        }
+    } catch (error) {
+        console.error("Failed to load offline evaluation metrics:", error);
+        [accEl, precEl, recEl, f1El].forEach((el) => { if (el) el.textContent = "N/A"; });
+        if (tsEl) tsEl.textContent = "No evaluation run found yet.";
+    }
+}
+
 /* =====================================================
    MODEL MONITOR PAGE — live serving stats + mini sparkline
    The Accuracy/Precision/Recall/F1 card elsewhere on this
@@ -1512,7 +1543,7 @@ if (clearHistoryButton) {
 ===================================================== */
 
 function renderModelMonitorPage() {
-
+    fetchAndRenderOfflineMetrics();   // ← add this line
     const history = loadTransactionHistory();
 
     const liveTotal = document.getElementById("live-total-predictions");

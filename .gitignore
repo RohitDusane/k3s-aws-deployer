@@ -50,7 +50,7 @@ dist/
 # ============================================================
 # Data / generated artifacts
 # ============================================================
-data/processed/
+# data/processed/
 artifacts/
 *.pkl
 *.joblib
@@ -80,7 +80,10 @@ k8s/kind-cluster.yaml
 # ============================================================
 requirements-training.txt
 index_abt_old.html
-reports/
+reports/*
+!reports/metrics/
+reports/metrics/*
+!reports/metrics/evaluation_summary.json
 _readme.md
 budget-notifications.json
 

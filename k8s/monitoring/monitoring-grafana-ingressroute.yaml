@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: risk-mlops
+  labels:
+    app.kubernetes.io/name: grafana
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+# Exposes Grafana on its own subdomain via the same Traefik ingress used
+# for the API. No /metrics-style block needed here — Grafana requires its
+# own login, unlike Prometheus which has none. Prometheus itself is
+# deliberately NOT given an IngressRoute; it stays reachable only inside
+# the cluster (Grafana's datasource hits it via ClusterIP) or via
+# `kubectl port-forward` for manual debugging.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  namespace: risk-mlops
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`grafana.52.1.55.147.nip.io`)
+      # match: Host(`grafana.riskguard.abc-ops.co.in`)
+      kind: Rule
+      priority: 1
+      middlewares:
+        - name: security-headers
+      services:
+        - name: grafana
+          port: 3000
+  tls:
+    certResolver: letsencrypt

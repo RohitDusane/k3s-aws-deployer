@@ -1,0 +1,60 @@
+{
+  "roc_auc": 1.0,
+  "average_precision": 1.0,
+  "brier_score": 1.6573523176574097e-05,
+  "positive_rate_test": 0.05,
+  "n_test_samples": 3500,
+  "best_threshold": {
+    "threshold": 0.1,
+    "tp": 175,
+    "fp": 0,
+    "tn": 3325,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "false_positive_rate": 0.0,
+    "specificity": 1.0,
+    "flagged_rate": 0.05,
+    "cost": 0.0,
+    "normalized_cost": 0.0
+  },
+  "baseline_metrics": {
+    "majority_class": {
+      "roc_auc": 0.5,
+      "average_precision": 0.05,
+      "brier_score": 0.05,
+      "strategy": "most_frequent"
+    },
+    "empirical_prior": {
+      "roc_auc": 0.5,
+      "average_precision": 0.05,
+      "brier_score": 0.047499999999999994,
+      "strategy": "prior"
+    },
+    "stratified_random": {
+      "roc_auc": 0.490375939849624,
+      "average_precision": 0.04940372670807454,
+      "brier_score": 0.09914285714285714,
+      "strategy": "stratified"
+    }
+  },
+  "cost_false_negative": 10.0,
+  "cost_false_positive": 1.0,
+  "artifacts": {
+    "threshold_search_json": "reports/metrics/threshold_search.json",
+    "threshold_search_csv": "reports/metrics/threshold_search.csv",
+    "threshold_json": "models/threshold.json",
+    "roc_curve": "reports/figures/roc_curve.png",
+    "pr_curve": "reports/figures/pr_curve.png",
+    "calibration_curve": "reports/figures/calibration_curve.png",
+    "threshold_cost_curve": "reports/figures/threshold_cost_curve.png",
+    "threshold_tradeoffs": "reports/figures/threshold_tradeoffs.png",
+    "confusion_matrix": "reports/figures/confusion_matrix.png"
+  },
+  "threshold_policy_artifacts": {
+    "json": "reports/metrics/threshold_policy.json",
+    "csv": "reports/metrics/threshold_policy.csv",
+    "markdown": "reports/metrics/threshold_policy.md"
+  }
+}

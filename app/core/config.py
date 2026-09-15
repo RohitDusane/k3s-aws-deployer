@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     model_name: str = "fraud-risk-model"
 
     model_version: str = "1.0.0"
+    metrics_path: str = "reports/metrics/evaluation_summary.json"
 
     model_config = SettingsConfigDict(
         env_file=".env",

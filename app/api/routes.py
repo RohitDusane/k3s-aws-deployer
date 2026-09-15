@@ -1,6 +1,7 @@
 import logging
 import time
-
+import json
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.core.config import settings
@@ -183,3 +184,31 @@ def predict(
         model_name=model_name,
         model_version=model_version,
     )
+
+@router.get(
+    "/model/metrics",
+    summary="Latest offline evaluation metrics",
+)
+def model_metrics() -> dict:
+    """
+    Returns the most recent offline evaluation run (accuracy, precision,
+    recall, F1, ROC-AUC), produced by `python -m src.evaluate`.
+
+    Distinct from the Prometheus /metrics endpoint, which reflects live
+    serving volume, not evaluated model quality.
+    """
+    metrics_path = Path(settings.metrics_path)
+
+    if not metrics_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No evaluation run found yet.",
+        )
+
+    with metrics_path.open() as f:
+        summary = json.load(f)
+
+    return {
+        "evaluated_at": summary.get("evaluated_at"),
+        "metrics": summary.get("headline_metrics", {}),
+    }

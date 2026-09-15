@@ -58,7 +58,7 @@ COPY app/ /app/app/
 RUN sed -i "s/unknown/${GIT_SHA}/" /app/app/frontend/index.html
 
 COPY models/ /app/models/
-
+COPY reports/metrics/evaluation_summary.json  /app/reports/metrics/evaluation_summary.json/
 
 # Non-root user — UID 10001 must match runAsUser in k8s/deploy.yaml exactly,
 # or Kubernetes' securityContext will override this and you'll get
