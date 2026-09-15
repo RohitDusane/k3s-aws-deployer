@@ -1,4 +1,8 @@
 # RiskGuard — Fintech Fraud Risk Scoring MLOps Platform
+![CI](https://github.com/RohitDusane/riskguard-mlops/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://raw.githubusercontent.com/RohitDusane/riskguard-mlops/main/coverage.svg)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue.svg)
 
 A fraud-risk scoring service built to demonstrate the full engineering
 lifecycle around a machine learning model — not just training one, but
@@ -70,9 +74,24 @@ infrastructure cost: **~$16-18/month** on-demand.
 
 ---
 
+## Dependency management
+
+- `requirements-serving.txt` — minimal runtime deps baked into the production Docker image (kept small deliberately)
+- `requirements-dev.txt` — testing, linting, and local dev tools (pytest, ruff, locust)
+- `requirements.txt` — full pinned environment for local development
+- `pyproject.toml` — project metadata and tool config (ruff, pytest settings)
+
+---
+
 ## Repository structure
+K3s ships with Traefik as its built-in ingress controller, so the two
+`traefik-*.yaml` files configure HTTPS termination (Let's Encrypt) and
+redirect middleware directly through K3s rather than standing up a
+separate ingress controller or an AWS ALB.
 
 ```
+## Repository structure
+
 risk-mlops/
 ├── app/
 │   ├── main.py                    # FastAPI app, lifespan model loading, Prometheus instrumentation
@@ -87,16 +106,29 @@ risk-mlops/
 ├── tests/
 │   ├── conftest.py                # mocks ModelService for API contract tests
 │   ├── test_health.py             # liveness vs readiness contract
-│   ├── test_api.py                # predict endpoint (fill in once schema is finalized)
+│   ├── test_api.py                # predict endpoint
 │   ├── test_model_service.py
 │   └── locustfile.py              # load test script
 │
 ├── k8s/
-│   ├── namespace.yaml, configmap.yaml, deploy.yaml, service.yaml
-│   └── monitoring-{prometheus,kube-state-metrics,grafana,alertmanager}*.yaml
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── deploy.yaml
+│   ├── service.yaml
+│   ├── traefik-middlewares.yaml          # HTTPS redirect / header middleware for the built-in Traefik ingress
+│   ├── traefik-letsencrypt-config.yaml   # TLS cert resolver config (Let's Encrypt via Traefik)
+│   └── monitoring/
+│       ├── monitoring-prometheus.yaml            # Prometheus deployment + service
+│       ├── monitoring-prometheus-config.yaml     # Prometheus scrape config (alerts.yml, targets)
+│       ├── monitoring-alertmanager.yaml          # Alertmanager deployment + Slack routing
+│       ├── monitoring-kube-state-metrics.yaml    # scoped to deployments/pods only
+│       ├── monitoring-grafana.yaml               # Grafana deployment + service
+│       ├── monitoring-grafana-datasource.yaml    # Grafana → Prometheus datasource provisioning
+│       ├── monitoring-grafana-dashboard-provider.yaml
+│       └── prometheus-monitor.yaml               # ServiceMonitor / scrape target for the API
 │
 ├── monitoring/
-│   ├── prometheus/alerts.yml           # 18 alert rules
+│   ├── prometheus/alerts.yml            # 18 alert rules (source, mounted into monitoring-prometheus-config)
 │   ├── alertmanager/alertmanager.yml.template
 │   └── grafana/{provisioning,dashboards}/
 │
@@ -104,6 +136,7 @@ risk-mlops/
 ├── Dockerfile                     # multi-stage, arm64-ready, non-root (uid 10001)
 ├── docker-compose.yaml            # local dev: api + prometheus + grafana
 ├── RUNBOOK.md                     # full local-to-production deployment walkthrough
+├── requirements.txt
 ├── requirements-serving.txt
 ├── requirements-dev.txt
 └── docs/
@@ -186,6 +219,17 @@ These are real, not hedging boilerplate:
   the planned fix.
 - **Transaction history in the frontend is browser-local** (`localStorage`),
   not backend-persisted — fine for a demo, not for multi-user use.
+
+---
+
+## Documentation
+
+- [Project Overview](docs/project-overview.md)
+- [Architecture](docs/architecture.md)
+- [API Reference](docs/api.md)
+- [Model Details](docs/model.md)
+- [Deployment Guide](docs/deployment.md)
+- [Full Runbook](RUNBOOK.md) — end-to-end local-to-production walkthrough
 
 ---
 
