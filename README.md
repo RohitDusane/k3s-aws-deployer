@@ -16,6 +16,10 @@ stage — not because it's a compromise being hidden.
 
 ---
 
+![RiskGuard dashboard](docs/screenshots/dashboard.png)
+![RiskGuard Model Metrics](docs/screenshots/model_metrics.png)
+---
+
 ## What's actually running
 
 ```
